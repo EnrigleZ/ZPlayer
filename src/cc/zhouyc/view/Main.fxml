@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="398.0" prefWidth="663.0" xmlns="http://javafx.com/javafx/8.0.151" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cc.zhouyc.view.MainController">
+   <children>
+      <VBox layoutY="-8.0" prefHeight="405.0" prefWidth="663.0">
+         <children>
+            <HBox prefHeight="378.0" prefWidth="549.0">
+               <children>
+                  <ScrollPane hbarPolicy="NEVER" prefHeight="372.0" prefWidth="208.0">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="368.0" prefWidth="206.0" style="-fx-background-color: #BBBBBB;">
+                           <children>
+                              <VBox fx:id="vBoxMusicList" layoutX="5.0" layoutY="9.0" prefHeight="361.0" prefWidth="198.0">
+                                 <children>
+                                    <Label prefHeight="28.0" prefWidth="100.0" text="Label" />
+                                    <Label prefHeight="28.0" prefWidth="100.0" text="Label" />
+                                    <Label prefHeight="28.0" prefWidth="100.0" text="Label" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                    </content>
+                  </ScrollPane>
+               </children></HBox>
+            <HBox prefHeight="26.0" prefWidth="663.0" style="-fx-background-color: #cccccc;" stylesheets="@player_theme.css">
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+               <children>
+                  <Button fx:id="buttonPrev" mnemonicParsing="false" text="上一首" />
+                  <Button fx:id="buttonPlay" mnemonicParsing="false" text="播放" />
+                  <Button fx:id="buttonNext" mnemonicParsing="false" text="下一首" />
+                  <Slider fx:id="sliderTime" prefHeight="32.0" prefWidth="225.0">
+                     <padding>
+                        <Insets left="20.0" />
+                     </padding>
+                  </Slider>
+                  <Label fx:id="labelTime" prefHeight="33.0" prefWidth="102.0" text="time" textAlignment="CENTER" />
+                  <Button fx:id="buttonOrder" mnemonicParsing="false" prefHeight="33.0" prefWidth="71.0" styleClass="custom-button" text="随机循环">
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                  </Button>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
