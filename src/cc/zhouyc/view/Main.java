@@ -1,10 +1,10 @@
 package cc.zhouyc.view;
 
-/*
+/**
  *  Main.java 为ZPlayer的主界面显示代码。
  *  通过加载由 SceneBuilder 生成的 FXML文件进行构建。
  *  
- *  Author: ZhouYC
+ * @author ZhouYC
  */
 import javafx.application.Application;
 import javafx.collections.FXCollections;

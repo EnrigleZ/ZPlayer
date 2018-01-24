@@ -29,7 +29,7 @@ public class MainController implements Initializable{
 
 		// 采用JavaFX事件响应编程模型，为button设置点击效果
 		initAllButtonAction();
-		sliderTime.setValue(05);
+		sliderTime.setValue(0);
 		System.out.println("Here I am in MainController "+Thread.currentThread().getName());
 		
 	}
