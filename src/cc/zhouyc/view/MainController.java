@@ -1,12 +1,14 @@
 package cc.zhouyc.view;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 import cc.zhouyc.model.Music;
 import cc.zhouyc.model.MusicPlayer;
+import cc.zhouyc.model.MusicPlayer.Status;
 import cc.zhouyc.tool.FileInput;
 
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
@@ -25,6 +27,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javazoom.jl.decoder.JavaLayerException;
 
 public class MainController implements Initializable{
 
@@ -49,6 +52,7 @@ public class MainController implements Initializable{
 		initAllButtonAction();
 		sliderTime.setValue(0);
 
+		//musicPlayer.start();
 		musicPlayer.setLabelDescription(labelDescription);
 		//columnID.setCellValueFactory(new PropertyValueFactory<Music, String>("id"));
 		columnName.setCellValueFactory(new PropertyValueFactory<Music, String>("description"));
@@ -67,8 +71,7 @@ public class MainController implements Initializable{
 				if (index < 0) return;
 				musicPlayer.setCurrentMusicIndex(index);
 				musicPlayer.play();
-				if (musicPlayer.getPlaying()) buttonPlay.setText("暂停");
-				else buttonPlay.setText("播放");
+				checkPlaying();
 				System.out.println(index);
 			}
 		});
@@ -95,7 +98,7 @@ public class MainController implements Initializable{
 	}
 
 	private void checkPlaying() {
-		if (musicPlayer.getPlaying()) buttonPlay.setText("暂停");
+		if (musicPlayer.getPlaying() == Status.PLAYING) buttonPlay.setText("暂停");
 		else buttonPlay.setText("播放");
 		tableMusic.getSelectionModel().select(musicPlayer.getCurrentMusicIndex());
 	}
@@ -106,12 +109,22 @@ public class MainController implements Initializable{
 		// 重新查一下lambda表达式的写法
 		// lambda表达式写起来比下面的普通写法简洁....
 		buttonNext.setOnAction(e -> {
-			musicPlayer.playNext();
+			try {
+				musicPlayer.playNext();
+			} catch (FileNotFoundException | JavaLayerException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			checkPlaying();
 			});
 		
 		buttonPrev.setOnAction(e -> {
-			musicPlayer.playPrev();
+			try {
+				musicPlayer.playPrev();
+			} catch (FileNotFoundException | JavaLayerException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			checkPlaying();
 			});
 		
@@ -119,15 +132,14 @@ public class MainController implements Initializable{
 			
 			@Override
 			public void handle(ActionEvent event) {
-				if (musicPlayer.getPlaying() == false) {
+				if (musicPlayer.getPlaying() != Status.PLAYING) {
 					// 未播放
-					if (musicPlayer.play() == true) {
-						musicPlayer.setPlaying(true);
-					}
+					// 注意一下 FINISHED的状况
+					
+					musicPlayer.conti();
 				}
 				else {
 					musicPlayer.pause();
-					musicPlayer.setPlaying(false);
 				}
 				checkPlaying();
 			}
