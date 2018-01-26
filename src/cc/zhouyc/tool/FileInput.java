@@ -22,7 +22,7 @@ public class FileInput {
 	
 	// 可以在这里手动设置默认音乐格式
 	static ArrayList<String> musicFormat = 
-			new ArrayList<String>(Arrays.asList("wma","mp3","flac")); 
+			new ArrayList<String>(Arrays.asList("wma","mp3")); 
 	
 	
 	public FileInput(Stage stage) {

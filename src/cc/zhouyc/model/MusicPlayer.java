@@ -1,18 +1,19 @@
 package cc.zhouyc.model;
 
-import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.List;
+import java.util.Timer;
 
-import javax.swing.ImageIcon;
-
-import com.sun.org.apache.bcel.internal.generic.NEW;
-
+import cc.zhouyc.view.Main;
+import cc.zhouyc.view.MainController;
+import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
-import javafx.scene.text.Text;
+import javafx.scene.control.TableView;
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
 
@@ -23,12 +24,20 @@ public class MusicPlayer {
 		NOT_STARTED, PLAYING, PAUSED, FINISHED, FINISHED_AUTO
 		};
 	
+	/*
+	 * Member Variables
+	 */
 	private MusicList musicList;
 	
 	private Player player;
 	
+	private LongProperty longCurrentMiliTime = new SimpleLongProperty(0);
+	
 	// sync的线程信号量
 	private Object playerLock = new Object();
+	
+	// 等待一首歌曲播放结束的信号量
+	private Object musicEndLock = new Object();
 	
 	private String strPlayOrder = "";
 	
@@ -39,7 +48,13 @@ public class MusicPlayer {
 	private Thread threadMusic;
 	
 	// 在这里显示音乐名
-	private Label labelDescription;
+	
+	private MainController controller;
+	
+	
+	/*
+	 * Member methods
+	 */
 	
 	public MusicPlayer() {
 		setPlayOrder("sequence");
@@ -56,6 +71,8 @@ public class MusicPlayer {
 		return musicList.getMusicNumber();
 	}
 
+	// 双击音乐Label
+	// 之前的线程return，开启新的线程
 	public boolean play() {
 		Music music = musicList.getCurrentMusic();
 		//threadMusic.
@@ -64,58 +81,26 @@ public class MusicPlayer {
 			return false;
 		}
 		
-		synchronized (playerLock) {
-			System.out.println("Before: getPl() == " + getPlaying());
-			if (getPlaying() == Status.PLAYING || getPlaying() == Status.PAUSED)
-				setPlaying(Status.FINISHED);
-			else setPlaying(Status.NOT_STARTED);
-			playerLock.notifyAll();	// 正在播放的线程会接受这个信息，然后将状态置为NOT_STARTED
-			
-			System.out.println(getPlaying());
-			// 在没有写自动下一曲的代码时，这里会出现问题，一直卡在FINISHED
-			
-			if (getPlaying() != Status.FINISHED_AUTO) {
-				while (getPlaying() == Status.FINISHED) {
-					System.out.println("getPlaying() == Status.FINISHED");	
-					try{
-						playerLock.wait();
-						
-					} catch (final InterruptedException e) {
-						break;
-					}
-				}
-			}
-    		// Now: isPlaying: NOT_STARTED
-
-			System.out.println("2");
-			
-			
-			// TODO: 自动切到下一首
-			
-			runnableMusic = new Runnable() {
-				@Override
-				public void run() {
-					try {
-						FileInputStream musicInputStream = new FileInputStream(music.getFilepath());
-						player = new Player(musicInputStream);
-					} catch (Exception e) {
-						return;
-					}
-					playInternal();
-				}
-            };
-            threadMusic = new Thread(runnableMusic);
-            //playerStatus = PLAYING;
-            threadMusic.start();
+		playMusic();
 		
-			labelDescription.setText(music.getDescription());
-			System.out.println("Play: " + music.getFilepath());
-			
-			setPlaying(Status.PLAYING);
-		}
-		return true;
+		// weird....这个sync段如果没有写好可能要卡死...
+//			synchronized (musicEndLock) {
+//				while (getPlaying() != Status.FINISHED_AUTO) {
+//					try {
+//						System.out.println("play() wait for next music...");
+//						//musicEndLock.wait();		// 原因在这：当时本函数在主线程调用 wait()阻塞
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//			musicList.nextMusicIndex(getPlayOrder());
+//			System.out.println("NextSong");
+		return false;
 	}
 	
+	
+	// 暂停按钮
 	public void pause() {
 		synchronized (playerLock) {
 			setPlaying(Status.PAUSED);
@@ -123,6 +108,7 @@ public class MusicPlayer {
 		}
 	}
 	
+	// 继续播放
 	public boolean conti() {
 		
 		System.out.println("Resume");
@@ -134,11 +120,14 @@ public class MusicPlayer {
 		}
 		return getPlaying() == Status.PLAYING;
 	}
-	public void playNext() throws FileNotFoundException, JavaLayerException {
+	
+	// 下一曲按钮
+	public void playNext() {
 		musicList.nextMusicIndex(getPlayOrder());
 		play();
 	}
 	
+	// 上一曲按钮（均采用顺序倒序播放）
 	public void playPrev() throws FileNotFoundException, JavaLayerException {
 		musicList.prevMusicIndex();
 		play();
@@ -176,26 +165,112 @@ public class MusicPlayer {
 		return musicList.getBindList();
 	}
 	
-	public void setLabelDescription(Label labelDescription) {
-		this.labelDescription = labelDescription;
+	// 通过Controller 来与界面交互
+	public void setWidgets(MainController controller) {
+		this.controller = controller;
+	}
+	
+	// 开启线程，播放音乐
+	private void playMusic() {
+		
+		synchronized (playerLock) {
+			
+			// 判断是否有音乐还没结束
+			System.out.println("Before: getPl() == " + getPlaying());
+			if (getPlaying() == Status.PLAYING || getPlaying() == Status.PAUSED)
+				setPlaying(Status.FINISHED);
+			else setPlaying(Status.NOT_STARTED);
+			playerLock.notifyAll();	// 正在播放的线程会接受这个信息，然后将状态置为NOT_STARTED
+			
+			System.out.println(getPlaying());
+
+			// 等待被中断（FINISHED）的歌曲停止（NOT_STARTED）
+			if (getPlaying() != Status.FINISHED_AUTO) {
+				while (getPlaying() == Status.FINISHED) {
+					System.out.println("getPlaying() == Status.FINISHED");	
+					try{
+						playerLock.wait();
+					} catch (final InterruptedException e) {
+						break;
+					}
+				}
+			}
+		}
+		// Now: isPlaying: NOT_STARTED
+		
+		longCurrentMiliTime.set(0);
+		runnableMusic = new Runnable() {
+			@Override
+			public void run() {
+				System.out.println("new run()");
+				do {
+					Music music = musicList.getCurrentMusic();
+					try {
+						FileInputStream musicInputStream = new FileInputStream(music.getFilepath());
+						player = new Player(musicInputStream);
+					} catch (Exception e) {
+						System.err.println(e);
+						return;
+					}
+					
+			        System.out.println(music.getDescription());
+			        
+					synchronized (playerLock) {
+						setPlaying(Status.PLAYING);
+					}
+					
+					playInternal();
+					System.out.println("out next:" + getCurrentMusicIndex());
+					if (getPlaying() == Status.FINISHED_AUTO) {
+						System.out.println("FINISHED_AUTO  -- Preparing for next music...");
+						// 用notifyAll()信号量的方式提醒 play()函数下一曲
+//						
+//						synchronized (musicEndLock) {
+//							musicEndLock.notifyAll();
+//						}
+					}
+					else return;
+				} while (true);
+			}
+        };
+        threadMusic = new Thread(runnableMusic);
+        threadMusic.start();
+        synchronized (playerLock) {
+			setPlaying(Status.PLAYING);
+		}
 	}
 	
 	public void playInternal() {
 
+		checkMusicDetailDisplay();
+		longCurrentMiliTime.set(0);
+		
 		while (getPlaying() != Status.FINISHED) {//
     		try {
+    			long startTime=System.currentTimeMillis();
     			if (!player.play(1)) {
     				synchronized (playerLock) {
     					if (getPlaying() == Status.FINISHED) {
     						// 由于player.play()的延时，导致了不同步
+    						// 所以在这里加上一个停止时的判断
     						break;
     					}
+    					
+    					// 这里是正常播放完成的
     					setPlaying(Status.FINISHED_AUTO);	
     					// System.out.println("自然完成" + getPlaying());
 					}
+    				//playNext();//不能调用这个playNext()否则是递归 = = 
+    				System.out.println(getPlayOrder());
+    				musicList.nextMusicIndex(getPlayOrder());
+    				System.out.println(getCurrentMusicIndex());
     				return;
     			}
+    			long deltaTime = System.currentTimeMillis() - startTime;
+    			longCurrentMiliTime.set(longCurrentMiliTime.get() + deltaTime);
+    			//System.out.println(longCurrentMiliTime.get());
     		} catch (final JavaLayerException e) {
+    			System.err.println(e);
     			synchronized (playerLock) {
     				setPlaying(Status.FINISHED_AUTO);
 				}
@@ -222,16 +297,28 @@ public class MusicPlayer {
 		// 否则播放会出问题
 		// 这里要采用set + notifyAll的方式和play()中的wait()打配合
 		// 才能确保音乐的确关了，不会出现还有0.1s fraction片段没播放完的情况
-		
+
+		System.out.println("Interrupted");
 		synchronized (playerLock) {
 			setPlaying(Status.NOT_STARTED);
 			playerLock.notifyAll();
 		}
 		
-		
-		System.out.println("done");
 		return;
 	}
 	
-
+	private void checkMusicDetailDisplay() {
+		Platform.runLater(new Runnable() {
+		    @Override
+		    public void run() {
+		    	controller.getLabelDescription().setText(musicList.getCurrentMusic().getDescription());
+		    	controller.getTableMusic().getSelectionModel().select(getCurrentMusicIndex());
+		    }
+		});
+		
+	}
+	
+	public LongProperty getCurrentMiliTime() {
+		return longCurrentMiliTime;
+	}
 }

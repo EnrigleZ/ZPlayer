@@ -1,5 +1,11 @@
 package cc.zhouyc.view;
 
+/**
+ * MainController类实现MVC框架中的Controller
+ * 实现界面与后端交互的沟通功能
+ * 
+ * @author ZhouYC
+ */
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
@@ -12,6 +18,9 @@ import cc.zhouyc.model.MusicPlayer.Status;
 import cc.zhouyc.tool.FileInput;
 
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
+import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -41,6 +50,7 @@ public class MainController implements Initializable{
 	private TableColumn<Music, String> columnName, columnPath;
 	@FXML
 	private Label labelTime, labelDescription;
+	
 	private Stage stage;
 	
 	private MusicPlayer musicPlayer = new MusicPlayer();
@@ -48,13 +58,12 @@ public class MainController implements Initializable{
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
+		sliderTime.setValue(0);
+		musicPlayer.setWidgets(this);
+		
 		// 采用JavaFX事件响应编程模型，为button设置点击效果
 		initAllButtonAction();
-		sliderTime.setValue(0);
-
-		//musicPlayer.start();
-		musicPlayer.setLabelDescription(labelDescription);
-		//columnID.setCellValueFactory(new PropertyValueFactory<Music, String>("id"));
+		
 		columnName.setCellValueFactory(new PropertyValueFactory<Music, String>("description"));
 		columnPath.setCellValueFactory(new PropertyValueFactory<Music, String>("filepath"));
 
@@ -86,12 +95,21 @@ public class MainController implements Initializable{
 		//JavaFXObservable.valuesOf();
 		tableMusic.setItems(musicPlayer.getBindList());
 		
-//		for (int i = 0; i < 50; i++) {
-//            Button button = new Button();
-//            vboxMusicList.getChildren().add(button);
-//        }
-		
-//		scrollMusicList.setContent(vboxMusicList);
+		musicPlayer.getCurrentMiliTime().addListener(new InvalidationListener() {
+			
+			@Override
+			public void invalidated(Observable observable) {
+				long currentTime = musicPlayer.getCurrentMiliTime().get();
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						labelTime.setText(String.format("%02d:%02d / xx:xx", currentTime/60000, (currentTime%60000)/1000));
+						//System.out.println(currentTime/60000+":"+(currentTime%60000)/1000);
+					}
+				});
+				
+			}
+		});
 		System.out.println("Here I am in MainController "+Thread.currentThread().getName());
 
 
@@ -111,7 +129,7 @@ public class MainController implements Initializable{
 		buttonNext.setOnAction(e -> {
 			try {
 				musicPlayer.playNext();
-			} catch (FileNotFoundException | JavaLayerException e1) {
+			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
@@ -144,6 +162,8 @@ public class MainController implements Initializable{
 				checkPlaying();
 			}
 		});
+		
+		
 		
 		buttonOrder.setOnAction(e -> {
 			String currentOrder = musicPlayer.getPlayOrder();
@@ -199,5 +219,14 @@ public class MainController implements Initializable{
 	
 	public void setStage(Stage stage) {
 		this.stage = stage;
+		stage.setOnCloseRequest(e->{System.exit(0);});
+	}
+	
+	public Label getLabelDescription() {
+		return labelDescription;
+	}
+	
+	public TableView<Music> getTableMusic() {
+		return tableMusic;
 	}
 }
