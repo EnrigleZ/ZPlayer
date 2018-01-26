@@ -20,7 +20,7 @@ public class MusicPlayer {
 	
 	// Define player status by enum Status.
 	static public enum Status {
-		NOT_STARTED, PLAYING, PAUSED, FINISHED
+		NOT_STARTED, PLAYING, PAUSED, FINISHED, FINISHED_AUTO
 		};
 	
 	private MusicList musicList;
@@ -55,9 +55,8 @@ public class MusicPlayer {
 	public Integer getMusicNumber() {
 		return musicList.getMusicNumber();
 	}
-	
-	// play()和pause() 应该注意是从断点开始继续播放
-	public boolean play() throws FileNotFoundException, JavaLayerException {
+
+	public boolean play() {
 		Music music = musicList.getCurrentMusic();
 		//threadMusic.
 		if (music == null) {
@@ -66,45 +65,54 @@ public class MusicPlayer {
 		}
 		
 		synchronized (playerLock) {
+			System.out.println("Before: getPl() == " + getPlaying());
 			if (getPlaying() == Status.PLAYING || getPlaying() == Status.PAUSED)
 				setPlaying(Status.FINISHED);
 			else setPlaying(Status.NOT_STARTED);
-			playerLock.notifyAll();
+			playerLock.notifyAll();	// 正在播放的线程会接受这个信息，然后将状态置为NOT_STARTED
 			
 			System.out.println(getPlaying());
+			// 在没有写自动下一曲的代码时，这里会出现问题，一直卡在FINISHED
 			
-			while (getPlaying() == Status.FINISHED) {
-				System.out.println("getPlaying() == Status.FINISHED");	
-				try{
-					playerLock.wait();
-					
-				} catch (final InterruptedException e) {
-					break;
+			if (getPlaying() != Status.FINISHED_AUTO) {
+				while (getPlaying() == Status.FINISHED) {
+					System.out.println("getPlaying() == Status.FINISHED");	
+					try{
+						playerLock.wait();
+						
+					} catch (final InterruptedException e) {
+						break;
+					}
 				}
 			}
-    		
+    		// Now: isPlaying: NOT_STARTED
 
 			System.out.println("2");
 			
-			FileInputStream musicInputStream = new FileInputStream(music.getFilepath());
-			player = new Player(musicInputStream);
 			
-			runnableMusic = new Runnable()
-			{
+			// TODO: 自动切到下一首
+			
+			runnableMusic = new Runnable() {
 				@Override
 				public void run() {
-					 playInternal();
+					try {
+						FileInputStream musicInputStream = new FileInputStream(music.getFilepath());
+						player = new Player(musicInputStream);
+					} catch (Exception e) {
+						return;
+					}
+					playInternal();
 				}
             };
             threadMusic = new Thread(runnableMusic);
             //playerStatus = PLAYING;
             threadMusic.start();
-		}  
-		labelDescription.setText(music.getDescription());
-		System.out.println("Play: " + music.getFilepath());
 		
-		setPlaying(Status.PLAYING);
-		
+			labelDescription.setText(music.getDescription());
+			System.out.println("Play: " + music.getFilepath());
+			
+			setPlaying(Status.PLAYING);
+		}
 		return true;
 	}
 	
@@ -176,10 +184,22 @@ public class MusicPlayer {
 
 		while (getPlaying() != Status.FINISHED) {//
     		try {
-    			if (!player.play(1)) 
-    				break;
+    			if (!player.play(1)) {
+    				synchronized (playerLock) {
+    					if (getPlaying() == Status.FINISHED) {
+    						// 由于player.play()的延时，导致了不同步
+    						break;
+    					}
+    					setPlaying(Status.FINISHED_AUTO);	
+    					// System.out.println("自然完成" + getPlaying());
+					}
+    				return;
+    			}
     		} catch (final JavaLayerException e) {
-    			break;
+    			synchronized (playerLock) {
+    				setPlaying(Status.FINISHED_AUTO);
+				}
+    			return;
     		}
     		//System.out.println("player.play(1);");
     		synchronized (playerLock) {
@@ -196,6 +216,7 @@ public class MusicPlayer {
     	}
 		
 		// NOTE:
+		// 当因为外部手动换歌，而非自动完成跳出循环时，会到以下部分代码
 		// 切到下一首歌时，通过改变FINISHED为NOT_STARTED
 		// 表示本线程播放已经结束
 		// 否则播放会出问题
