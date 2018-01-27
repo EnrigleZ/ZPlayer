@@ -11,6 +11,7 @@ import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.scene.Scene;
@@ -36,6 +37,7 @@ public class Main extends Application {
 			
 			Scene scene = new Scene(root);
 			primaryStage.setResizable(false);	
+			//primaryStage.setOpacity(0.95);
 			primaryStage.setScene(scene);
 			primaryStage.show();
 		} catch(Exception e) {

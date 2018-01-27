@@ -109,6 +109,9 @@ public class MusicPlayer {
 	}
 	
 	// 继续播放
+	
+	// TODO：加个判断，是否当前不是暂停状态，用户点这个按键是希望播放选中歌曲
+	//	可以在函数开始时判断一下
 	public boolean conti() {
 		
 		System.out.println("Resume");
@@ -172,10 +175,9 @@ public class MusicPlayer {
 	
 	// 开启线程，播放音乐
 	private void playMusic() {
-		
+
+		// 判断是否有音乐还没结束，否则会出现严重混音错误
 		synchronized (playerLock) {
-			
-			// 判断是否有音乐还没结束
 			System.out.println("Before: getPl() == " + getPlaying());
 			if (getPlaying() == Status.PLAYING || getPlaying() == Status.PAUSED)
 				setPlaying(Status.FINISHED);
@@ -183,7 +185,6 @@ public class MusicPlayer {
 			playerLock.notifyAll();	// 正在播放的线程会接受这个信息，然后将状态置为NOT_STARTED
 			
 			System.out.println(getPlaying());
-
 			// 等待被中断（FINISHED）的歌曲停止（NOT_STARTED）
 			if (getPlaying() != Status.FINISHED_AUTO) {
 				while (getPlaying() == Status.FINISHED) {
@@ -195,10 +196,12 @@ public class MusicPlayer {
 					}
 				}
 			}
-		}
+		} //synchronized(playerLock)
 		// Now: isPlaying: NOT_STARTED
 		
 		longCurrentMiliTime.set(0);
+		
+		// 列表播放线程
 		runnableMusic = new Runnable() {
 			@Override
 			public void run() {
@@ -213,7 +216,14 @@ public class MusicPlayer {
 						return;
 					}
 					
-			        System.out.println(music.getDescription());
+					System.out.println("Current playing: ");
+					if (music.getName() != null) System.out.println("Name: " + music.getName());
+					else System.out.println("Name: null");
+					if (music.getComposer() != null) System.out.println("Composer: " + music.getComposer());
+					else System.out.println("Composer: null");
+			        System.out.println("Desctription: " + music.getDescription());
+			        System.out.println("Path: " + music.getFilepath());
+			        System.out.println("Length: " + music.getMusicLength());
 			        
 					synchronized (playerLock) {
 						setPlaying(Status.PLAYING);
@@ -229,9 +239,9 @@ public class MusicPlayer {
 //							musicEndLock.notifyAll();
 //						}
 					}
-					else return;
+					else return;	// 非正常停止（外部切歌）时return结束线程
 				} while (true);
-			}
+			}// run()
         };
         threadMusic = new Thread(runnableMusic);
         threadMusic.start();
@@ -240,6 +250,17 @@ public class MusicPlayer {
 		}
 	}
 	
+	/**
+	 * 本函数通过调用 Player类的play(1)方法播放音乐
+	 * 首先调用checkMusicDetailDisplay()更新控件显示状态，并将播放时间置零
+	 * 同时更新当前播放时间
+	 * 通过getPlaying()检查当前播放状态是否被中断或暂停，
+	 * 并通过线程同步对象 playerLock来同步线程
+	 * 若因歌曲播放完毕自然结束，结束时isPlaying = FINISHED_AUTO
+	 * 若因外部切歌结束，结束时isPlaying = FINISHED
+	 * 
+	 * @author ZhouYC
+	 */
 	public void playInternal() {
 
 		checkMusicDetailDisplay();
@@ -276,12 +297,14 @@ public class MusicPlayer {
 				}
     			return;
     		}
-    		//System.out.println("player.play(1);");
+
+    		// 暂停
     		synchronized (playerLock) {
+    			// 当取消暂停或外部切歌中断时跳出等待
     			while (getPlaying() == Status.PAUSED) {
     				System.out.println("getPlaying() == Status.PAUSED");
     				try{
-    					playerLock.wait();
+    					playerLock.wait();	//wait() 会暂时释放对playerLock的占有
     					
     				} catch (final InterruptedException e) {
     					break;
@@ -307,12 +330,27 @@ public class MusicPlayer {
 		return;
 	}
 	
+	/**
+	 * 开始播放时调用本函数，更新控件显示的音乐信息
+	 * 更新label显示的当前播放描述
+	 * 更新tableview选中的音乐
+	 * 
+	 * @author ZhouYC
+	 */
 	private void checkMusicDetailDisplay() {
 		Platform.runLater(new Runnable() {
 		    @Override
 		    public void run() {
-		    	controller.getLabelDescription().setText(musicList.getCurrentMusic().getDescription());
+		    	Music music = musicList.getCurrentMusic();
+		    	controller.musicTime = music.getMusicLength();
+		    	controller.getLabelDescription().setText(music.getDescription());
 		    	controller.getTableMusic().getSelectionModel().select(getCurrentMusicIndex());
+		    	int totalTime =music.getMusicLength();
+		    	controller.getLabelTotal().setText(String.format("%02d:%02d", 
+		    			totalTime / 60, 
+		    			totalTime % 60
+		    			));
+		    	System.out.println("Music information widgets updated.");
 		    }
 		});
 		

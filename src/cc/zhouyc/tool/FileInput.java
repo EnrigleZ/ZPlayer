@@ -7,8 +7,11 @@ import java.util.Arrays;
 
 import javafx.stage.DirectoryChooser;
 /**
- * FileInput用于打开文件、文件夹
- * 
+ * FileInput用于打开文件、文件夹，并选取音乐文件
+ * public methods: 
+ * 		chooseFile()
+ * 		chooseDir()
+ * 分别用于选取音乐文件和从文件夹（及子文件夹）中选取音乐文件
  * @author ZhouYC
  */
 import javafx.stage.FileChooser;
@@ -18,13 +21,22 @@ public class FileInput {
 	
 	Stage stage;
 	
-	static File lastDir = new File(".");
+	/**
+	 * STATIC
+	 */
+	// 默认打开文件选择器的路径，每次选择后置为本次打开的文件夹
+	private static String lastDir = "E:\\Music";
 	
 	// 可以在这里手动设置默认音乐格式
-	static ArrayList<String> musicFormat = 
-			new ArrayList<String>(Arrays.asList("wma","mp3")); 
+	private static ArrayList<String> musicFormat = 
+			new ArrayList<String>(Arrays.asList(
+					"wma", 
+					"mp3", 
+					"wmv"
+				)); 
 	
 	
+	// constructor
 	public FileInput(Stage stage) {
 		// 传递 stage
 		
@@ -35,38 +47,66 @@ public class FileInput {
 		
 		this.stage = stage;
 		//this.stage = new Stage();
-		
+		try {
+			new File(lastDir);
+		} catch (Exception e) {
+			lastDir = "";
+			System.out.println("Default directory is invalid");
+		}
 	}
 	
 	/**
-	 * 选取音乐文件
-	 * @return File variable
+	 * 选取音乐文件，记录上次加入文件的路径lastDir，下次默认从此处打开
+	 * @return File variable of selected music file.
 	 */
 	public File chooseFile() {
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Open Resource File");
-		fileChooser.setInitialDirectory(lastDir);
+		fileChooser.setTitle("可根据扩展名筛选");
+		fileChooser.setInitialDirectory(new File(lastDir));
+		
+		// 设置扩展名 (全部 + musicFormat)
+		fileChooser.getExtensionFilters().add(
+				new FileChooser.ExtensionFilter("All Files", "*.*")
+		);
+		
+		for (String type : musicFormat) {
+			fileChooser.getExtensionFilters().add(
+				new FileChooser.ExtensionFilter(type.toUpperCase(), "*."+type)
+				);
+		}
+		
 		File file = fileChooser.showOpenDialog(stage);
-		if (file != null) lastDir = file.getParentFile();
+		if (file != null) lastDir = file.getParent();
 		else System.out.println("No file selected.");
 		
 		return file;
 	}
 	
-	// 调用 getMusicFromDir() 处理文件夹中的文件
+	/**
+	 *	从选中文件夹中选取全部音乐格式文件（参考musicFormat数组）
+	 *  调用 getMusicFromDir() 递归处理文件夹中的文件
+	 * @return ArrayList<code>String</code> An ArrayList containing all the paths in the directory.
+	 */
 	public ArrayList<String> chooseDir() {
 		DirectoryChooser directoryChooser = new DirectoryChooser();
 		File dir = directoryChooser.showDialog(stage);
-		directoryChooser.setTitle("默认添加mp3,wma格式音乐文件");
-		directoryChooser.setInitialDirectory(lastDir);
+//		directoryChooser.setTitle("默认添加mp3,wma格式音乐文件");
+//		directoryChooser.setInitialDirectory(new File(lastDir));
 		if (dir != null) {
-			lastDir = dir;
+			lastDir = dir.getPath();
 			return getMusicFileFromDir(dir.getAbsolutePath());
 		}
 		return null;
 	}
 	
 	// 采用递归的方式遍历子文件夹
+	/**
+	 * Use this function to search all the music files and return their paths.
+	 * 
+	 * @param String path: Path of the directory.
+	 * @return An ArrayList/<Music/> containing all the music file paths in the directory and sub-directories.
+	 * @author ZhouYC
+	 */
 	private ArrayList<String> getMusicFileFromDir(String path) {
 		ArrayList<String> ret = new ArrayList<String>();
 		

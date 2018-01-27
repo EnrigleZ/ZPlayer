@@ -29,7 +29,7 @@ public class MusicList {
 	}
 	
 	public boolean addMusic(Music music) {
-		System.out.println(music.getDescription());
+		//System.out.println(music.getDescription());
 		if (list.contains(music)) {
 			System.out.println("Music " + music.getFilepath() + " has already existed in the list...");
 			return false;

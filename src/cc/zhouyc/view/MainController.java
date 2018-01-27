@@ -12,6 +12,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+import com.sun.org.apache.bcel.internal.generic.NEW;
+
 import cc.zhouyc.model.Music;
 import cc.zhouyc.model.MusicPlayer;
 import cc.zhouyc.model.MusicPlayer.Status;
@@ -28,12 +30,18 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javazoom.jl.decoder.JavaLayerException;
@@ -47,25 +55,32 @@ public class MainController implements Initializable{
 	@FXML
 	private TableView<Music> tableMusic;
 	@FXML
-	private TableColumn<Music, String> columnName, columnPath;
+	private TableColumn<Music, String> columnName;
 	@FXML
-	private Label labelTime, labelDescription;
+	private Label labelTime, labelTotal, labelDescription;
+	@FXML
+	private ProgressBar progressBarTime;
 	
 	private Stage stage;
 	
 	private MusicPlayer musicPlayer = new MusicPlayer();
 	
+	// 当前音乐总时长
+	public int musicTime; 
+	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
+		//progressBar.setProgress(0.5);
 		sliderTime.setValue(0);
+		sliderTime.setFocusTraversable(false);
+		
 		musicPlayer.setWidgets(this);
 		
 		// 采用JavaFX事件响应编程模型，为button设置点击效果
 		initAllButtonAction();
 		
 		columnName.setCellValueFactory(new PropertyValueFactory<Music, String>("description"));
-		columnPath.setCellValueFactory(new PropertyValueFactory<Music, String>("filepath"));
 
 //		tableMusic.setOnMouseClicked(e->{
 //			if (e.getClickCount() == 2) {
@@ -74,6 +89,7 @@ public class MainController implements Initializable{
 //			}
 //		});
 		
+		//tableMusic.setOpacity(0.5);
 		JavaFxObservable.eventsOf(tableMusic, MouseEvent.MOUSE_RELEASED).subscribe(s->{
 			if (s.getClickCount() == 2) {
 				int index = tableMusic.getSelectionModel().getSelectedIndex();
@@ -84,17 +100,20 @@ public class MainController implements Initializable{
 				System.out.println(index);
 			}
 		});
-		JavaFxObservable.eventsOf(tableMusic, MouseEvent.MOUSE_DRAGGED).subscribe(s->{
-			System.out.println(s.getPickResult());
-		});
+//		JavaFxObservable.eventsOf(tableMusic, MouseEvent.MOUSE_DRAGGED).subscribe(s->{
+//			System.out.println(s.getPickResult());
+//		});
 //		JavaFxObservable.valuesOf(
 //				tableMusic.getSelectionModel().selectedItemProperty()
 //					).subscribe(v -> {
 //					musicPlayer.
 //				});
 		//JavaFXObservable.valuesOf();
+		
+		// 在TableView中绑定列表
 		tableMusic.setItems(musicPlayer.getBindList());
 		
+		// 实现音乐播放进度的绑定
 		musicPlayer.getCurrentMiliTime().addListener(new InvalidationListener() {
 			
 			@Override
@@ -103,8 +122,11 @@ public class MainController implements Initializable{
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-						labelTime.setText(String.format("%02d:%02d / xx:xx", currentTime/60000, (currentTime%60000)/1000));
-						//System.out.println(currentTime/60000+":"+(currentTime%60000)/1000);
+						labelTime.setText(String.format("%02d:%02d", currentTime/60000, (currentTime%60000)/1000));
+						double progress = new Double(currentTime / 1000)/musicTime;
+						//System.out.println(progress);
+						progressBarTime.setProgress(progress);
+						sliderTime.setValue(progress * 100);
 					}
 				});
 				
@@ -117,7 +139,7 @@ public class MainController implements Initializable{
 
 	private void checkPlaying() {
 		if (musicPlayer.getPlaying() == Status.PLAYING) buttonPlay.setText("暂停");
-		else buttonPlay.setText("播放");
+		else buttonPlay.setText("继续");
 		tableMusic.getSelectionModel().select(musicPlayer.getCurrentMusicIndex());
 	}
 	
@@ -164,7 +186,6 @@ public class MainController implements Initializable{
 		});
 		
 		
-		
 		buttonOrder.setOnAction(e -> {
 			String currentOrder = musicPlayer.getPlayOrder();
 			if (currentOrder.equals("sequence")) {
@@ -178,16 +199,17 @@ public class MainController implements Initializable{
 				buttonOrder.setText("顺序播放");
 			}
 			System.out.println(buttonOrder.getText() + ": " + musicPlayer.getPlayOrder());
-			
-//			Music test = new Music(musicPlayer.getMusicNumber().toString());
-//			test.setName("name");
-//			addMusicNode(test);
 		});
 		
 		buttonInputFile.setOnAction(e -> {
 			FileInput fileInput = new FileInput(stage);
 			File file = fileInput.chooseFile();
-			if (file != null) addMusicNode(new Music(file.getAbsolutePath()));
+			if (file != null) {
+				Music music = new Music(file.getAbsolutePath());
+				if (music.procDetail() != -1) {
+					addMusicNode(music);
+				}
+			}
 		});
 		
 		buttonInputDir.setOnAction(e -> {
@@ -196,9 +218,13 @@ public class MainController implements Initializable{
 			if (dir == null) return;
 			
 			for (String path : dir) {
-				musicPlayer.addMusic(new Music(path));
+				Music music = new Music(path);
+				if (music.procDetail() != -1) {
+					musicPlayer.addMusic(music);
+				}
 			}
 		});
+		
 		buttonRemove.setOnAction(e -> {
 			if (musicPlayer.removeMusic(tableMusic.getSelectionModel().getSelectedItem())) 
 				System.out.println("Remove sucessfully.");
@@ -207,12 +233,8 @@ public class MainController implements Initializable{
 	}
 	
 	// 将一个 Music转换为界面显示中的一个点击控件，添加到ScrollPane中的VBox
+	// 设置数据绑定，只需在musicList中添加对应的音乐即可
 	public void addMusicNode(Music music) {
-//		Button buttonMusic = new Button(music.getName());
-//		buttonMusic.setPrefSize(208, 60);
-//		buttonMusic.setOnAction(e->{buttonMusic.setText("click");});
-//		vboxMusicList.getChildren().add(buttonMusic);
-		
 		if (musicPlayer.addMusic(music))
 			System.out.println("添加成功");
 	}
@@ -224,6 +246,10 @@ public class MainController implements Initializable{
 	
 	public Label getLabelDescription() {
 		return labelDescription;
+	}
+	
+	public Label getLabelTotal() {
+		return labelTotal;
 	}
 	
 	public TableView<Music> getTableMusic() {
