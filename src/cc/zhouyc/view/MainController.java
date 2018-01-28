@@ -59,7 +59,7 @@ public class MainController implements Initializable{
 	private MenuItem action1, action2;
 	
 	@FXML
-	private Slider sliderTime;
+	private Slider sliderTime;	// abandoned.
 	@FXML
 	private TableView<Music> tableMusic;
 	@FXML
@@ -126,6 +126,8 @@ public class MainController implements Initializable{
 		tableMusic.setItems(musicPlayer.getBindList());
 		
 		// 实现音乐播放进度的绑定
+		//	1. 播放进度条长度、时间标签数字更新
+		//	2. 播放进度条颜色渐变特效
 		musicPlayer.getCurrentMiliTime().addListener(new InvalidationListener() {
 			
 			@Override
@@ -134,21 +136,31 @@ public class MainController implements Initializable{
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
+						// 设置进度条显示，时间数字
 						labelTime.setText(String.format("%02d:%02d", currentTime/60000, (currentTime%60000)/1000));
 						double progress = new Double(currentTime / 1000)/musicTime;
-						int colorPro = (int)((1 - progress) * 0x66)	;
-						// 设置进度条颜色变化 #006666 -> 000066
-						//System.out.println(progressBarTime.getStyleClass().indexOf("-fx-accent"));
-						//progressBarTime.getStyleClass().set(1, "-fx-opacity: 0");
-						String string = "-fx-accent: " + String.format("#EE%02x%02x", colorPro, 255 - colorPro);
-						System.out.println(string);
-						progressBarTime.getStyleClass().removeAll();
-						progressBarTime.setStyle("-fx-accent: blue");
-						System.out.println(progressBarTime.getStyleClass());
-						//System.out.println(progress);
-						//progressBarTime.set
 						progressBarTime.setProgress(progress);
 						sliderTime.setValue(progress * 100);
+						
+						// 通过setStyle()的方式改变进度条颜色样式
+						// Note: setStyle()可以修改css的样式，removeAll()不会清除css的样式
+						// 设置进度条颜色变化 #006666 -> 000066
+						
+						String strStyle = "#660000";	// init: red
+						if (progress < 0.2) {			// #660000 -> #666600
+							strStyle = String.format("#66%02X00", (int)(0x1FE*progress));
+						} else if (progress < 0.4) {	// #666600 -> #006600
+							strStyle = String.format("#%02X6600", (int)(0x1FE*(0.4-progress)));
+						} else if (progress < 0.6) {	// #006600 -> #006666
+							strStyle = String.format("#0066%02X", (int)(0x1FE*(progress-0.4)));
+						} else if (progress < 0.8) {	// #006666 -> #000066
+							strStyle = String.format("#00%02X66", (int)(0x1FE*(0.8-progress)));
+						} else {						// #000066 -> #660066
+							strStyle = String.format("#%02X0066", (int)(0x1FE*(progress-0.8)));
+						}
+						//System.out.println(strStyle);
+						progressBarTime.setStyle("-fx-accent: "+strStyle);
+						//System.out.println(progressBarTime.getStyle());
 					}
 				});
 				
@@ -239,6 +251,7 @@ public class MainController implements Initializable{
 			}
 		});
 		
+
 		// 加入文件夹按钮-> 文件夹选择按钮
 		buttonInputDir.setOnAction(e -> {
 			FileInput fileInput = new FileInput(stage);

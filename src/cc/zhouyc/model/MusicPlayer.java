@@ -58,7 +58,7 @@ public class MusicPlayer {
 	 */
 	
 	public MusicPlayer() {
-		setPlayOrder("sequence");
+		setPlayOrder("random");
 		player = null;
 		musicList = new MusicList();
 		setPlaying(Status.NOT_STARTED);
@@ -252,6 +252,7 @@ public class MusicPlayer {
 	}
 	
 	/**
+	 * 一首音乐的播放实际在这里完成
 	 * 本函数通过调用 Player类的play(1)方法播放音乐
 	 * 首先调用checkMusicDetailDisplay()更新控件显示状态，并将播放时间置零
 	 * 同时更新当前播放时间

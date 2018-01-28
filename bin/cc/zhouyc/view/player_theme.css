@@ -153,7 +153,8 @@
 	-fx-background-color: grey;
     -fx-padding: 0.0 ;
 }
-
-.progress-bar {
-	-fx-opacity: 0.6;
-}
+/* 
+.progressbar {
+	-fx-opacity: 1;
+	-fx-accent: #00ffff;
+}*/
