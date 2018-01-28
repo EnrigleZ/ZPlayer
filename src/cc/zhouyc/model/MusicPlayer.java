@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Timer;
 
+import cc.zhouyc.tool.MusicImage;
 import cc.zhouyc.view.Main;
 import cc.zhouyc.view.MainController;
 import javafx.application.Platform;
@@ -342,7 +343,7 @@ public class MusicPlayer {
 		    @Override
 		    public void run() {
 		    	Music music = musicList.getCurrentMusic();
-		    	controller.musicTime = music.getMusicLength();
+		    	controller.setMusicTime(music.getMusicLength());
 		    	controller.getLabelDescription().setText(music.getDescription());
 		    	controller.getTableMusic().getSelectionModel().select(getCurrentMusicIndex());
 		    	int totalTime =music.getMusicLength();
@@ -350,6 +351,14 @@ public class MusicPlayer {
 		    			totalTime / 60, 
 		    			totalTime % 60
 		    			));
+		    	
+		    	controller.getVBoxRight().setBackground(
+		    			new MusicImage(music.getFilepath()).getBackground(
+		    					controller.getVBoxRight().getWidth(), 
+		    					controller.getVBoxRight().getHeight()
+		    					));
+		    	System.out.println(controller.getVBoxRight().styleProperty());//setStyle("-fx-background-size: 100%");
+		    	
 		    	System.out.println("Music information widgets updated.");
 		    }
 		});

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 import com.sun.org.apache.bcel.internal.generic.NEW;
+import com.sun.xml.internal.messaging.saaj.soap.StringDataContentHandler;
 
 import cc.zhouyc.model.Music;
 import cc.zhouyc.model.MusicPlayer;
@@ -23,6 +24,8 @@ import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -30,6 +33,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TableCell;
@@ -42,6 +46,7 @@ import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javazoom.jl.decoder.JavaLayerException;
@@ -50,6 +55,9 @@ public class MainController implements Initializable{
 
 	@FXML
 	private Button buttonPlay, buttonPrev, buttonNext, buttonOrder, buttonInputFile, buttonInputDir, buttonRemove;
+	@FXML
+	private MenuItem action1, action2;
+	
 	@FXML
 	private Slider sliderTime;
 	@FXML
@@ -60,13 +68,15 @@ public class MainController implements Initializable{
 	private Label labelTime, labelTotal, labelDescription;
 	@FXML
 	private ProgressBar progressBarTime;
+	@FXML
+	private VBox vboxRight;
 	
 	private Stage stage;
 	
 	private MusicPlayer musicPlayer = new MusicPlayer();
 	
 	// 当前音乐总时长
-	public int musicTime; 
+	private int musicTime; 
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -80,6 +90,7 @@ public class MainController implements Initializable{
 		// 采用JavaFX事件响应编程模型，为button设置点击效果
 		initAllButtonAction();
 		
+		// 绑定 TableView中显示音乐详情列（只有一列）
 		columnName.setCellValueFactory(new PropertyValueFactory<Music, String>("description"));
 
 //		tableMusic.setOnMouseClicked(e->{
@@ -88,8 +99,9 @@ public class MainController implements Initializable{
 //				System.out.println(index);
 //			}
 //		});
-		
 		//tableMusic.setOpacity(0.5);
+		
+		// 设置双击点击播放事件
 		JavaFxObservable.eventsOf(tableMusic, MouseEvent.MOUSE_RELEASED).subscribe(s->{
 			if (s.getClickCount() == 2) {
 				int index = tableMusic.getSelectionModel().getSelectedIndex();
@@ -124,7 +136,17 @@ public class MainController implements Initializable{
 					public void run() {
 						labelTime.setText(String.format("%02d:%02d", currentTime/60000, (currentTime%60000)/1000));
 						double progress = new Double(currentTime / 1000)/musicTime;
+						int colorPro = (int)((1 - progress) * 0x66)	;
+						// 设置进度条颜色变化 #006666 -> 000066
+						//System.out.println(progressBarTime.getStyleClass().indexOf("-fx-accent"));
+						//progressBarTime.getStyleClass().set(1, "-fx-opacity: 0");
+						String string = "-fx-accent: " + String.format("#EE%02x%02x", colorPro, 255 - colorPro);
+						System.out.println(string);
+						progressBarTime.getStyleClass().removeAll();
+						progressBarTime.setStyle("-fx-accent: blue");
+						System.out.println(progressBarTime.getStyleClass());
 						//System.out.println(progress);
+						//progressBarTime.set
 						progressBarTime.setProgress(progress);
 						sliderTime.setValue(progress * 100);
 					}
@@ -148,6 +170,8 @@ public class MainController implements Initializable{
 		
 		// 重新查一下lambda表达式的写法
 		// lambda表达式写起来比下面的普通写法简洁....
+		
+		// 下一曲按钮 -> 下一曲
 		buttonNext.setOnAction(e -> {
 			try {
 				musicPlayer.playNext();
@@ -158,6 +182,7 @@ public class MainController implements Initializable{
 			checkPlaying();
 			});
 		
+		// 上一曲按钮 -> 上一曲
 		buttonPrev.setOnAction(e -> {
 			try {
 				musicPlayer.playPrev();
@@ -168,6 +193,7 @@ public class MainController implements Initializable{
 			checkPlaying();
 			});
 		
+		// 播放/暂停按钮
 		buttonPlay.setOnAction(new EventHandler<ActionEvent>() {
 			
 			@Override
@@ -185,7 +211,7 @@ public class MainController implements Initializable{
 			}
 		});
 		
-		
+		// 播放顺序按钮 -> 切换播放顺序
 		buttonOrder.setOnAction(e -> {
 			String currentOrder = musicPlayer.getPlayOrder();
 			if (currentOrder.equals("sequence")) {
@@ -201,6 +227,7 @@ public class MainController implements Initializable{
 			System.out.println(buttonOrder.getText() + ": " + musicPlayer.getPlayOrder());
 		});
 		
+		// 加入文件按钮 -> 文件选择窗口
 		buttonInputFile.setOnAction(e -> {
 			FileInput fileInput = new FileInput(stage);
 			File file = fileInput.chooseFile();
@@ -212,6 +239,7 @@ public class MainController implements Initializable{
 			}
 		});
 		
+		// 加入文件夹按钮-> 文件夹选择按钮
 		buttonInputDir.setOnAction(e -> {
 			FileInput fileInput = new FileInput(stage);
 			ArrayList<String> dir = fileInput.chooseDir();
@@ -225,6 +253,7 @@ public class MainController implements Initializable{
 			}
 		});
 		
+		// 移除歌曲按钮 -> 移除歌曲 
 		buttonRemove.setOnAction(e -> {
 			if (musicPlayer.removeMusic(tableMusic.getSelectionModel().getSelectedItem())) 
 				System.out.println("Remove sucessfully.");
@@ -254,5 +283,13 @@ public class MainController implements Initializable{
 	
 	public TableView<Music> getTableMusic() {
 		return tableMusic;
+	}
+	
+	public VBox getVBoxRight() {
+		return vboxRight;
+	}
+
+	public void setMusicTime(int musicLength) {
+		this.musicTime = musicLength;
 	}
 }

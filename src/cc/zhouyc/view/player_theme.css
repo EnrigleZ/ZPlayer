@@ -153,3 +153,7 @@
 	-fx-background-color: grey;
     -fx-padding: 0.0 ;
 }
+
+.progress-bar {
+	-fx-opacity: 0.6;
+}
