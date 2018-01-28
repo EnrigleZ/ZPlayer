@@ -23,9 +23,18 @@
                      <children>
                         <HBox prefHeight="26.0" prefWidth="201.0">
                            <children>
-                              <Button fx:id="buttonInputFile" mnemonicParsing="false" prefHeight="26.0" prefWidth="59.0" style="-fx-font-size: 10px;" text="加入文件" />
-                              <Button fx:id="buttonInputDir" mnemonicParsing="false" prefHeight="26.0" prefWidth="81.0" style="-fx-font-size: 10px;" text="加入文件夹" />
-                              <Button fx:id="buttonRemove" mnemonicParsing="false" prefHeight="26.0" prefWidth="65.0" style="-fx-font-size: 10px;" text="删除选中" />
+                              <MenuButton mnemonicParsing="false" prefHeight="26.0" prefWidth="80.0" text="添加音乐">
+                                <items>
+                                  <MenuItem fx:id="buttonInputFile" mnemonicParsing="false" text="加入文件" />
+                                  <MenuItem fx:id="buttonInputDir" mnemonicParsing="false" text="加入文件夹" />
+                                </items>
+                              </MenuButton>
+                              <MenuButton mnemonicParsing="false" prefHeight="26.0" prefWidth="81.0" text="删除音乐">
+                                <items>
+                                  <MenuItem fx:id="buttonRemove" mnemonicParsing="false" text="删除选中" />
+                                  <MenuItem fx:id="buttonClear" mnemonicParsing="false" text="清空列表" />
+                                </items>
+                              </MenuButton>
                            </children>
                         </HBox>
                         <TableView fx:id="tableMusic" fixedCellSize="30.0" prefHeight="339.0" prefWidth="213.0">
@@ -41,12 +50,6 @@
                   <VBox fx:id="vboxRight" prefHeight="364.0" prefWidth="461.0" style="-fx-background-size: 100%;" stylesheets="@lyric_board.css">
                      <children>
                         <Slider fx:id="sliderTime" disable="true" prefHeight="21.0" prefWidth="210.0" visible="false" />
-                        <MenuButton mnemonicParsing="false" text="MenuButton">
-                          <items>
-                            <MenuItem fx:id="action1" mnemonicParsing="false" text="Action 1" />
-                            <MenuItem fx:id="action2" mnemonicParsing="false" text="Action 2" />
-                          </items>
-                        </MenuButton>
                      </children></VBox>
                </children>
             </HBox>
@@ -63,7 +66,7 @@
                         <Label fx:id="labelDescription" prefHeight="21.0" prefWidth="275.0" text="Music - Composer" />
                         <HBox prefHeight="35.0" prefWidth="327.0">
                            <children>
-                              <ProgressBar fx:id="progressBarTime" prefWidth="200.0" progress="1.0" />
+                              <ProgressBar fx:id="progressBarTime" prefWidth="200.0" progress="0.0" />
                               <Label fx:id="labelTime" prefHeight="21.0" prefWidth="39.0" text="00:00" textAlignment="CENTER" />
                               <Label text="/" />
                               <Label fx:id="labelTotal" text="00:00" />

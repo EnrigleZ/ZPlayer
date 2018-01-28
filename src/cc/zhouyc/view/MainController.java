@@ -10,8 +10,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
+import com.sun.accessibility.internal.resources.accessibility;
 import com.sun.org.apache.bcel.internal.generic.NEW;
 import com.sun.xml.internal.messaging.saaj.soap.StringDataContentHandler;
 
@@ -30,9 +32,13 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
@@ -54,9 +60,9 @@ import javazoom.jl.decoder.JavaLayerException;
 public class MainController implements Initializable{
 
 	@FXML
-	private Button buttonPlay, buttonPrev, buttonNext, buttonOrder, buttonInputFile, buttonInputDir, buttonRemove;
+	private Button buttonPlay, buttonPrev, buttonNext, buttonOrder;//, buttonInputFile, buttonInputDir;
 	@FXML
-	private MenuItem action1, action2;
+	private MenuItem buttonInputFile, buttonInputDir, buttonRemove, buttonClear;
 	
 	@FXML
 	private Slider sliderTime;	// abandoned.
@@ -92,14 +98,6 @@ public class MainController implements Initializable{
 		
 		// 绑定 TableView中显示音乐详情列（只有一列）
 		columnName.setCellValueFactory(new PropertyValueFactory<Music, String>("description"));
-
-//		tableMusic.setOnMouseClicked(e->{
-//			if (e.getClickCount() == 2) {
-//				int index = tableMusic.getSelectionModel().getSelectedIndex();
-//				System.out.println(index);
-//			}
-//		});
-		//tableMusic.setOpacity(0.5);
 		
 		// 设置双击点击播放事件
 		JavaFxObservable.eventsOf(tableMusic, MouseEvent.MOUSE_RELEASED).subscribe(s->{
@@ -112,15 +110,6 @@ public class MainController implements Initializable{
 				System.out.println(index);
 			}
 		});
-//		JavaFxObservable.eventsOf(tableMusic, MouseEvent.MOUSE_DRAGGED).subscribe(s->{
-//			System.out.println(s.getPickResult());
-//		});
-//		JavaFxObservable.valuesOf(
-//				tableMusic.getSelectionModel().selectedItemProperty()
-//					).subscribe(v -> {
-//					musicPlayer.
-//				});
-		//JavaFXObservable.valuesOf();
 		
 		// 在TableView中绑定列表
 		tableMusic.setItems(musicPlayer.getBindList());
@@ -143,8 +132,8 @@ public class MainController implements Initializable{
 						sliderTime.setValue(progress * 100);
 						
 						// 通过setStyle()的方式改变进度条颜色样式
-						// Note: setStyle()可以修改css的样式，removeAll()不会清除css的样式
-						// 设置进度条颜色变化 #006666 -> 000066
+						// Note: setStyle()可以修改css中已定义的样式，removeAll()不会清除css的样式
+						// 设置进度条颜色变化 #006666 -> #000066
 						
 						String strStyle = "#660000";	// init: red
 						if (progress < 0.2) {			// #660000 -> #666600
@@ -251,7 +240,7 @@ public class MainController implements Initializable{
 			}
 		});
 		
-
+		
 		// 加入文件夹按钮-> 文件夹选择按钮
 		buttonInputDir.setOnAction(e -> {
 			FileInput fileInput = new FileInput(stage);
@@ -272,6 +261,23 @@ public class MainController implements Initializable{
 				System.out.println("Remove sucessfully.");
 			else System.out.println("Remove failed");
 		});
+		
+		// 清空列表按钮 -> 清空列表
+		buttonClear.setOnAction(e -> {
+			if (musicPlayer.getMusicNumber() == 0) {
+				System.out.println("no music to remove");
+				return;
+			}
+
+			Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,"清空列表吗？");
+		    Optional<ButtonType> result = confirmation.showAndWait();
+		    if(result.isPresent() && result.get() == ButtonType.OK){
+		    	musicPlayer.getBindList().clear();
+		    } 
+		    else System.out.println("not remove all");
+		
+		});
+		
 	}
 	
 	// 将一个 Music转换为界面显示中的一个点击控件，添加到ScrollPane中的VBox
