@@ -80,7 +80,10 @@ public class Music {
 	public int getMusicLength() {
 		return musicLength;
 	}
-	
+	public String getStrLength() {
+		if (musicLength == 0xffffffff) return "-";
+		else return String.format("%02d:%02d", musicLength/60, musicLength%60);
+	}
 	public void setMusicLength(int length) {
 		this.musicLength = length;
 	}

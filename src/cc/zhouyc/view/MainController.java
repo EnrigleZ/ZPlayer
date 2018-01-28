@@ -37,6 +37,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
@@ -47,6 +48,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
@@ -69,7 +71,7 @@ public class MainController implements Initializable{
 	@FXML
 	private TableView<Music> tableMusic;
 	@FXML
-	private TableColumn<Music, String> columnName;
+	private TableColumn<Music, String> columnName, columnLength;
 	@FXML
 	private Label labelTime, labelTotal, labelDescription;
 	@FXML
@@ -79,6 +81,10 @@ public class MainController implements Initializable{
 	
 	private Stage stage;
 	
+	// 右键点击的菜单
+	private ContextMenu  contextRightMenu = new ContextMenu();
+	private MenuItem rightProperties = new MenuItem("属性"), rightRemove = new MenuItem("删除");
+	
 	private MusicPlayer musicPlayer = new MusicPlayer();
 	
 	// 当前音乐总时长
@@ -87,7 +93,7 @@ public class MainController implements Initializable{
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
-		//progressBar.setProgress(0.5);
+		progressBarTime.setProgress(0);
 		sliderTime.setValue(0);
 		sliderTime.setFocusTraversable(false);
 		
@@ -98,18 +104,7 @@ public class MainController implements Initializable{
 		
 		// 绑定 TableView中显示音乐详情列（只有一列）
 		columnName.setCellValueFactory(new PropertyValueFactory<Music, String>("description"));
-		
-		// 设置双击点击播放事件
-		JavaFxObservable.eventsOf(tableMusic, MouseEvent.MOUSE_RELEASED).subscribe(s->{
-			if (s.getClickCount() == 2) {
-				int index = tableMusic.getSelectionModel().getSelectedIndex();
-				if (index < 0) return;
-				musicPlayer.setCurrentMusicIndex(index);
-				musicPlayer.play();
-				checkPlaying();
-				System.out.println(index);
-			}
-		});
+		columnLength.setCellValueFactory(new PropertyValueFactory<Music, String>("strLength"));
 		
 		// 在TableView中绑定列表
 		tableMusic.setItems(musicPlayer.getBindList());
@@ -148,7 +143,12 @@ public class MainController implements Initializable{
 							strStyle = String.format("#%02X0066", (int)(0x1FE*(progress-0.8)));
 						}
 						//System.out.println(strStyle);
-						progressBarTime.setStyle("-fx-accent: "+strStyle);
+						progressBarTime.setStyle("-fx-accent: "+strStyle
+								
+								// 第二个特效...进度条随时间产生脉动效果
+								+";-fx-opacity: "+(1-(double)(currentTime%1000)/2000));
+						
+						//System.out.println((1-(double)(currentTime%1000)/2000));
 						//System.out.println(progressBarTime.getStyle());
 					}
 				});
@@ -228,6 +228,43 @@ public class MainController implements Initializable{
 			System.out.println(buttonOrder.getText() + ": " + musicPlayer.getPlayOrder());
 		});
 		
+		// 右键菜单的两个选项 属性 & 删除
+		rightProperties.setOnAction(e -> {
+			Music music = tableMusic.getSelectionModel().getSelectedItem();
+			if (music != null) {
+				System.out.println(music.getDescription());
+				showMusicInfo(music);
+			}
+		});
+		rightRemove.setOnAction(e -> {
+			if (musicPlayer.removeMusic(tableMusic.getSelectionModel().getSelectedItem())) 
+				System.out.println("Remove sucessfully.");
+			else System.out.println("Remove failed");
+		});
+		contextRightMenu.getItems().addAll(rightProperties, rightRemove);
+		
+		// subscribe方式 
+		// 响应式设置音乐标签绑定事件
+		JavaFxObservable.eventsOf(tableMusic, MouseEvent.MOUSE_RELEASED).subscribe(s->{
+			if (musicPlayer.getMusicNumber() == 0) return;
+			
+			// 设置右键菜单呼出
+			if (s.getButton() == MouseButton.SECONDARY) {
+				if (tableMusic.getSelectionModel().getSelectedIndex() == -1) return;
+				contextRightMenu.show(tableMusic, s.getScreenX(), s.getScreenY());
+				return;
+			}
+			contextRightMenu.hide();
+			// 设置双击点击播放事件
+			if (s.getClickCount() == 2) {
+				int index = tableMusic.getSelectionModel().getSelectedIndex();
+				if (index < 0) return;
+				musicPlayer.setCurrentMusicIndex(index);
+				musicPlayer.play();
+				checkPlaying();
+				System.out.println(index);
+			}
+		});
 		// 加入文件按钮 -> 文件选择窗口
 		buttonInputFile.setOnAction(e -> {
 			FileInput fileInput = new FileInput(stage);
@@ -278,6 +315,11 @@ public class MainController implements Initializable{
 		
 		});
 		
+	}
+	
+	// 响应属性按钮，弹窗显示
+	public void showMusicInfo(Music music) {
+		new SubWindow().display(music);
 	}
 	
 	// 将一个 Music转换为界面显示中的一个点击控件，添加到ScrollPane中的VBox
