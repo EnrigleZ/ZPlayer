@@ -8,7 +8,9 @@ package cc.zhouyc.view;
  */
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -21,7 +23,7 @@ import cc.zhouyc.model.Music;
 import cc.zhouyc.model.MusicPlayer;
 import cc.zhouyc.model.MusicPlayer.Status;
 import cc.zhouyc.tool.FileInput;
-
+import cc.zhouyc.tool.SaveList;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -64,8 +66,7 @@ public class MainController implements Initializable{
 	@FXML
 	private Button buttonPlay, buttonPrev, buttonNext, buttonOrder;//, buttonInputFile, buttonInputDir;
 	@FXML
-	private MenuItem buttonInputFile, buttonInputDir, buttonRemove, buttonClear;
-	
+	private MenuItem buttonInputFile, buttonInputDir, buttonRemove, buttonClear, buttonExport, buttonImport;
 	@FXML
 	private Slider sliderTime;	// abandoned.
 	@FXML
@@ -95,7 +96,7 @@ public class MainController implements Initializable{
 
 		progressBarTime.setProgress(0);
 		sliderTime.setValue(0);
-		sliderTime.setFocusTraversable(false);
+		//sliderTime.setFocusTraversable(false);
 		
 		musicPlayer.setWidgets(this);
 		
@@ -143,11 +144,10 @@ public class MainController implements Initializable{
 							strStyle = String.format("#%02X0066", (int)(0x1FE*(progress-0.8)));
 						}
 						//System.out.println(strStyle);
-						progressBarTime.setStyle("-fx-accent: "+strStyle
-								
+						progressBarTime.setStyle(
+								"-fx-accent: "+strStyle
 								// 第二个特效...进度条随时间产生脉动效果
 								+";-fx-opacity: "+(1-(double)(currentTime%1000)/2000));
-						
 						//System.out.println((1-(double)(currentTime%1000)/2000));
 						//System.out.println(progressBarTime.getStyle());
 					}
@@ -158,7 +158,7 @@ public class MainController implements Initializable{
 		System.out.println("Here I am in MainController "+Thread.currentThread().getName());
 
 
-	}
+	}	// initialize ends
 
 	private void checkPlaying() {
 		if (musicPlayer.getPlaying() == Status.PLAYING) buttonPlay.setText("暂停");
@@ -270,26 +270,32 @@ public class MainController implements Initializable{
 			FileInput fileInput = new FileInput(stage);
 			File file = fileInput.chooseFile();
 			if (file != null) {
+				String title = stage.getTitle();
+				stage.setTitle(title);
 				Music music = new Music(file.getAbsolutePath());
 				if (music.procDetail() != -1) {
 					addMusicNode(music);
 				}
+				stage.setTitle(title);
 			}
 		});
 		
-		
+		 
 		// 加入文件夹按钮-> 文件夹选择按钮
 		buttonInputDir.setOnAction(e -> {
 			FileInput fileInput = new FileInput(stage);
 			ArrayList<String> dir = fileInput.chooseDir();
 			if (dir == null) return;
 			
+			String title = stage.getTitle();
+			stage.setTitle("正在处理歌曲信息...");
 			for (String path : dir) {
 				Music music = new Music(path);
 				if (music.procDetail() != -1) {
 					musicPlayer.addMusic(music);
 				}
 			}
+			stage.setTitle(title);
 		});
 		
 		// 移除歌曲按钮 -> 移除歌曲 
@@ -306,20 +312,82 @@ public class MainController implements Initializable{
 				return;
 			}
 
-			Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,"清空列表吗？");
-		    Optional<ButtonType> result = confirmation.showAndWait();
-		    if(result.isPresent() && result.get() == ButtonType.OK){
+			
+		    if (new SubWindow().displayComfirm("清空列表吗")){
 		    	musicPlayer.getBindList().clear();
 		    } 
 		    else System.out.println("not remove all");
 		
 		});
 		
-	}
+		// 从 .DB or .LIST 文件中导入列表
+		buttonImport.setOnAction(e->{
+			FileInput fileInput = new FileInput(stage, new String[] {"db", "list"}, "./data", 1) ;
+			File file = fileInput.chooseFile();
+			if (file == null) return;
+			SaveList saveList = null;
+			try {
+				saveList = new SaveList(file.getAbsolutePath());
+				if (saveList.isTableMusicListExists() == false) {
+					System.out.println("TABLE MUSICLIST 不存在");
+					return;
+				}
+				boolean clear = true;
+				if (musicPlayer.getMusicNumber() != 0) {
+					clear = new SubWindow().displayComfirm("导入前是否保留当前列表？");
+					if (clear == false) musicPlayer.getBindList().clear();
+				}
+				ArrayList<Music> musics = saveList.load();
+				
+				// 除重
+				musics.removeAll(musicPlayer.getBindList());
+				// merge
+				musicPlayer.getBindList().addAll(musics);
+			} catch(Exception e1) {
+				System.out.println(e1);
+				new SubWindow().displayAlert("不支持该文件导入");
+				return;
+			}
+		});
+		
+		// 将列表导出到.DB or .LIST文件
+		buttonExport.setOnAction(e->{
+			FileInput fileInput = new FileInput(stage, new String[] {"db", "list"}, "./data", -1) ;
+			File file = fileInput.chooseFile();
+			if (file == null) return;
+			
+			try {
+				SaveList saveList = new SaveList(file.getAbsolutePath());
+				if (saveList.isTableMusicListExists()) {
+					if (new SubWindow().displayComfirm("当前文件已记录歌曲信息，是否保留文件内列表？")
+							== false) {
+						saveList.deleteList();
+					}
+				}
+
+				// 用多线程导出列表，要不然主界面会卡住
+				Thread thread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							saveList.save(musicPlayer.getBindList());
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+					}
+				});
+				thread.start();
+				
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		});
+	}	// initAllButton ends
 	
 	// 响应属性按钮，弹窗显示
 	public void showMusicInfo(Music music) {
-		new SubWindow().display(music);
+		new SubWindow().displayMusicInfo(music);
 	}
 	
 	// 将一个 Music转换为界面显示中的一个点击控件，添加到ScrollPane中的VBox

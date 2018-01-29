@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import javafx.stage.DirectoryChooser;
 /**
- * FileInput用于打开文件、文件夹，并选取音乐文件
+ * FileInput用于打开文件、文件夹，并选取音乐文件，或选取列表存档文件
  * public methods: 
  * 		chooseFile()
  * 		chooseDir()
@@ -35,6 +35,11 @@ public class FileInput {
 					"wmv"
 				)); 
 	
+	// 为了让这个类复用，加入手动指定路径及格式
+	private String[] chosenFormat = null;
+	private String chosenDir = null;
+	// 用于判断是否是导出列表
+	private int isImport = 0;	// 1, -1
 	
 	// constructor
 	public FileInput(Stage stage) {
@@ -47,6 +52,9 @@ public class FileInput {
 		
 		this.stage = stage;
 		//this.stage = new Stage();
+		
+		this.isImport = 0;
+		
 		try {
 			new File(lastDir);
 		} catch (Exception e) {
@@ -54,29 +62,52 @@ public class FileInput {
 			System.out.println("Default directory is invalid");
 		}
 	}
+	public FileInput(Stage stage, String format[], String dir, int isImport) {
+		this.stage = stage;
+		this.isImport = isImport;
+		chosenFormat = format;
+		chosenDir = dir;
+		try {
+			new File(chosenDir);
+		} catch (Exception e) {
+			dir = "./data";
+		}
+	}
 	
 	/**
-	 * 选取音乐文件，记录上次加入文件的路径lastDir，下次默认从此处打开
+	 * 选取音乐文件或列表记录（需调用第二种构造方式），记录上次加入文件的路径lastDir，下次默认从此处打开
 	 * @return File variable of selected music file.
 	 */
 	public File chooseFile() {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("可根据扩展名筛选");
-		fileChooser.setInitialDirectory(new File(lastDir));
+		if (isImport == 0) fileChooser.setInitialDirectory(new File(lastDir));
+		else fileChooser.setInitialDirectory(new File(chosenDir));
 		
 		// 设置扩展名 (全部 + musicFormat)
 		fileChooser.getExtensionFilters().add(
 				new FileChooser.ExtensionFilter("All Files", "*.*")
 		);
-		
-		for (String type : musicFormat) {
-			fileChooser.getExtensionFilters().add(
-				new FileChooser.ExtensionFilter(type.toUpperCase(), "*."+type)
-				);
+		if (chosenFormat == null ) {
+			for (String type : musicFormat) {
+				fileChooser.getExtensionFilters().add(
+					new FileChooser.ExtensionFilter(type.toUpperCase(), "*."+type)
+					);
+			}
 		}
-		
-		File file = fileChooser.showOpenDialog(stage);
-		if (file != null) lastDir = file.getParent();
+		else {
+			for (String format : chosenFormat) {
+				fileChooser.getExtensionFilters().add(
+						new FileChooser.ExtensionFilter(format.toUpperCase(), "*."+format)
+						);
+			}
+		}
+		File file;
+		if (isImport == -1) file = fileChooser.showSaveDialog(stage);	//导出 
+		else file = fileChooser.showOpenDialog(stage);
+		if (file != null) {
+			if (this.isImport == 0) lastDir = file.getParent();
+		}
 		else System.out.println("No file selected.");
 		
 		return file;
@@ -91,7 +122,7 @@ public class FileInput {
 		DirectoryChooser directoryChooser = new DirectoryChooser();
 		File dir = directoryChooser.showDialog(stage);
 //		directoryChooser.setTitle("默认添加mp3,wma格式音乐文件");
-//		directoryChooser.setInitialDirectory(new File(lastDir));
+		directoryChooser.setInitialDirectory(new File("."));
 		if (dir != null) {
 			lastDir = dir.getPath();
 			return getMusicFileFromDir(dir.getAbsolutePath());
@@ -130,4 +161,5 @@ public class FileInput {
 		
 		return ret;
 	}
+	
 }

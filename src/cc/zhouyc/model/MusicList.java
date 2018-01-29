@@ -65,7 +65,7 @@ public class MusicList {
 		
 		int intMusicNumber = getMusicNumber();
 		if (intMusicNumber == 0) return -1;
-		
+		if (intMusicNumber == 1) return intCurrentMusicIndex;
 		if (order == "sequence")  intCurrentMusicIndex = (intCurrentMusicIndex + 1) % intMusicNumber;
 		else if (order == "random") {
 			int tmp;

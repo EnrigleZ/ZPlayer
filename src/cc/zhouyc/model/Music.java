@@ -174,5 +174,4 @@ public class Music {
 		return 0;
 	}
 
-
 }

@@ -48,14 +48,12 @@ public class MusicPlayer {
 	
 	private Thread threadMusic;
 	
-	// 在这里显示音乐名
-	
+	// Controller Model
 	private MainController controller;
 	
 	
-	/*
-	 * Member methods
-	 */
+	
+	// Member methods
 	
 	public MusicPlayer() {
 		setPlayOrder("random");
@@ -81,21 +79,13 @@ public class MusicPlayer {
 			System.out.println("No Music!");
 			return false;
 		}
-		
 		playMusic();
 		
 		// weird....这个sync段如果没有写好可能要卡死...
-//			synchronized (musicEndLock) {
-//				while (getPlaying() != Status.FINISHED_AUTO) {
-//					try {
-//						System.out.println("play() wait for next music...");
+//			...
 //						//musicEndLock.wait();		// 原因在这：当时本函数在主线程调用 wait()阻塞
-//					} catch (Exception e) {
-//						e.printStackTrace();
-//					}
-//				}
-//			}
-//			musicList.nextMusicIndex(getPlayOrder());
+//			...
+		
 //			System.out.println("NextSong");
 		return false;
 	}
@@ -231,7 +221,7 @@ public class MusicPlayer {
 					}
 					
 					playInternal();
-					System.out.println("out next:" + getCurrentMusicIndex());
+					//System.out.println("out next:" + getCurrentMusicIndex());
 					if (getPlaying() == Status.FINISHED_AUTO) {
 						System.out.println("FINISHED_AUTO  -- Preparing for next music...");
 						// 用notifyAll()信号量的方式提醒 play()函数下一曲
@@ -286,7 +276,7 @@ public class MusicPlayer {
     				//playNext();//不能调用这个playNext()否则是递归 = = 
     				System.out.println(getPlayOrder());
     				musicList.nextMusicIndex(getPlayOrder());
-    				System.out.println(getCurrentMusicIndex());
+    			//	System.out.println(getCurrentMusicIndex());
     				return;
     			}
     			long deltaTime = System.currentTimeMillis() - startTime;
