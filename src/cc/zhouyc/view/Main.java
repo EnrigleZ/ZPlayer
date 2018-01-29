@@ -36,6 +36,8 @@ public class Main extends Application {
 			controller.setStage(primaryStage);
 			
 			Scene scene = new Scene(root);
+			primaryStage.setWidth(704);
+			primaryStage.setHeight(431);
 			primaryStage.setResizable(false);	
 			//primaryStage.setOpacity(0.95);
 			primaryStage.setScene(scene);

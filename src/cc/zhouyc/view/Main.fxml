@@ -14,9 +14,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="404.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.151" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cc.zhouyc.view.MainController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="404.0" prefWidth="701.0" xmlns="http://javafx.com/javafx/8.0.151" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cc.zhouyc.view.MainController">
    <children>
-      <VBox prefHeight="404.0" prefWidth="701.0">
+      <VBox prefHeight="404.0" prefWidth="701.0" stylesheets="@main_theme.css">
          <children>
             <MenuBar>
               <menus>
@@ -40,11 +40,11 @@
                 </Menu>
               </menus>
             </MenuBar>
-            <HBox prefHeight="378.0" prefWidth="701.0">
+            <HBox prefHeight="378.0" prefWidth="701.0" stylesheets="@main_theme.css">
                <children>
                   <VBox prefHeight="364.0" prefWidth="286.0">
                      <children>
-                        <TableView fx:id="tableMusic" fixedCellSize="30.0" maxWidth="284.0" minWidth="245.0" prefHeight="339.0" prefWidth="289.0" stylesheets="@tableview.css">
+                        <TableView fx:id="tableMusic" fixedCellSize="30.0" maxWidth="284.0" minWidth="245.0" prefHeight="339.0" prefWidth="289.0">
                           <columns>
                             <TableColumn fx:id="columnName" editable="false" maxWidth="200.0" minWidth="173.0" prefWidth="182.0" resizable="false" sortable="false" text="播放列表" />
                               <TableColumn fx:id="columnLength" editable="false" minWidth="0.0" prefWidth="66.0" resizable="false" text="时长" />
@@ -55,18 +55,18 @@
                         </TableView>
                      </children>
                   </VBox>
-                  <VBox fx:id="vboxRight" prefHeight="364.0" prefWidth="461.0" style="-fx-background-size: 100%;" stylesheets="@right_board.css">
+                  <VBox fx:id="vboxRight" prefHeight="364.0" prefWidth="461.0" style="-fx-background-size: 100%;">
                      <children>
                         <Slider fx:id="sliderTime" disable="true" prefHeight="21.0" prefWidth="210.0" visible="false" />
                      </children></VBox>
                </children>
             </HBox>
-            <HBox prefHeight="40.0" prefWidth="701.0" style="-fx-background-color: #cccccc;" stylesheets="@player_theme.css">
+            <HBox prefHeight="40.0" prefWidth="701.0" style="-fx-background-color: #cccccc;" stylesheets="@bottom_theme.css">
                <VBox.margin>
                   <Insets />
                </VBox.margin>
                <children>
-                  <Button fx:id="buttonPrev" mnemonicParsing="false" prefHeight="40.0" prefWidth="92.0" text="上一首" />
+                  <Button fx:id="buttonPrev" mnemonicParsing="false" prefHeight="38.0" prefWidth="92.0" text="上一首" />
                   <Button fx:id="buttonPlay" mnemonicParsing="false" prefHeight="38.0" prefWidth="78.0" text="继续" />
                   <Button fx:id="buttonNext" mnemonicParsing="false" prefHeight="38.0" prefWidth="92.0" text="下一首" />
                   <VBox maxHeight="40.0" minHeight="40.0" prefHeight="40.0" prefWidth="366.0">

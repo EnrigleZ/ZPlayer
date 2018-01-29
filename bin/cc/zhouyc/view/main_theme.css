@@ -1,5 +1,14 @@
-.root{
-    -fx-background-color: #262626;
+/**
+ * CSS for musiclist.
+ * 
+ * Author: ZhouYC
+ */
+
+
+
+.table-view:row-selection .column-header-background .filler{
+    visibility: false;
+
 }
 
 .table-view{
@@ -46,6 +55,10 @@
     -fx-background-radius: 1;
 }
 
+.scroll-bar:horizontal {
+	visibility: false; 
+}
+
 .table-view > .virtual-flow > .scroll-bar:vertical,
 .table-view > .virtual-flow > .scroll-bar:vertical > .track,
 .table-view > .virtual-flow > .scroll-bar:vertical > .track-background, 
@@ -60,4 +73,12 @@
 .table-view > .virtual-flow > .scroll-bar > .increment-button, 
 .table-view > .virtual-flow > .scroll-bar > .decrement-button {
     -fx-opacity: 0;
+}
+
+#vboxRight {
+	-fx-background-image: url("../../../../img/bg.jpeg");
+}
+
+.menu-bar {
+	 
 }

@@ -127,6 +127,7 @@ public class SaveList {
 		try {
 		Statement statement = connection.createStatement();
 		statement.executeUpdate("DELETE FROM MUSICLIST;");
+		statement.close();
 		} catch(Exception e) {}
 	}
 	
