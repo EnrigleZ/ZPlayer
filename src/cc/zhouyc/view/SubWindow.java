@@ -8,9 +8,11 @@ import java.util.Optional;
  * @author ZhouYC
  */
 import cc.zhouyc.model.Music;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -46,8 +48,13 @@ public class SubWindow {
 
 	// 显示错误提示
 	public void displayAlert(String warning) {
-		Alert error = new Alert(Alert.AlertType.ERROR, warning);
-		error.show();
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				Alert error = new Alert(Alert.AlertType.ERROR, warning);
+				error.show();
+			}
+		});
 	}
 	
 	// 显示确认窗口
@@ -55,5 +62,15 @@ public class SubWindow {
 		Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, confirm);
 	    Optional<ButtonType> result = confirmation.showAndWait();
 	    return result.isPresent() && result.get() == ButtonType.OK;
+	}
+	
+	public void displayNotice(String notice) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				Alert alert = new Alert(AlertType.INFORMATION, notice);
+				alert.show();
+			}
+		});
 	}
 }

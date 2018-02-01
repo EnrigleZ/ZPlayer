@@ -44,7 +44,7 @@
                <children>
                   <VBox prefHeight="364.0" prefWidth="286.0">
                      <children>
-                        <TableView fx:id="tableMusic" fixedCellSize="30.0" maxWidth="284.0" minWidth="245.0" prefHeight="339.0" prefWidth="289.0">
+                        <TableView fx:id="tableMusic" fixedCellSize="30.0" maxWidth="284.0" minWidth="245.0" prefHeight="339.0" prefWidth="289.0" style="-fx-background-color: linear-gradient(#444444 0%, #888888 100%);">
                           <columns>
                             <TableColumn fx:id="columnName" editable="false" maxWidth="200.0" minWidth="173.0" prefWidth="182.0" resizable="false" sortable="false" text="播放列表" />
                               <TableColumn fx:id="columnLength" editable="false" minWidth="0.0" prefWidth="66.0" resizable="false" text="时长" />

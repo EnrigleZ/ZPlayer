@@ -102,7 +102,6 @@ public class SaveList {
 				System.out.println(e);
 			}
 		}
-		
 		statement.close();
 	}
 	

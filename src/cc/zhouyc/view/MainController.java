@@ -272,6 +272,9 @@ public class MainController implements Initializable{
 				if (music.procDetail() != -1) {
 					addMusicNode(music);
 				}
+				else {
+					new SubWindow().displayAlert("无法添加'" + file.getAbsolutePath() + "'");
+				}
 				stage.setTitle(title);
 			}
 		});
@@ -285,13 +288,35 @@ public class MainController implements Initializable{
 			
 			String title = stage.getTitle();
 			stage.setTitle("正在处理歌曲信息...");
-			for (String path : dir) {
-				Music music = new Music(path);
-				if (music.procDetail() != -1) {
-					musicPlayer.addMusic(music);
+
+			// 开辟新线程加入歌曲
+			// 可以不阻塞主进程
+			Thread thread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					int insertNum = 0;
+					ArrayList<String> unavailable = new ArrayList<String>();
+					for (String path : dir) {
+						Music music = new Music(path);
+						if (music.procDetail() != -1) {
+							if (musicPlayer.addMusic(music)) insertNum++;
+						}
+						else {
+							//new SubWindow().displayAlert("无法添加'" + path + "'");
+							unavailable.add(path);
+						}
+					}
+					if (!unavailable.isEmpty()) {
+						new SubWindow().displayAlert("无法添加'" + unavailable.get(0)+"'等"+unavailable.size()+"首歌曲");
+					}
+					new SubWindow().displayNotice("导入文件夹完毕，共新增"+insertNum+"首歌曲");
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() { stage.setTitle(""); }
+					});
 				}
-			}
-			stage.setTitle(title);
+			});
+			thread.start();
 		});
 		
 		// 移除歌曲按钮 -> 移除歌曲 
@@ -320,9 +345,11 @@ public class MainController implements Initializable{
 		buttonImport.setOnAction(e->{
 			FileInput fileInput = new FileInput(stage, new String[] {"db", "list"}, "./data", 1) ;
 			File file = fileInput.chooseFile();
+			
 			if (file == null) return;
-			SaveList saveList = null;
+			String title = stage.getTitle();
 			try {
+				SaveList saveList = null;
 				saveList = new SaveList(file.getAbsolutePath());
 				if (saveList.isTableMusicListExists() == false) {
 					System.out.println("TABLE MUSICLIST 不存在");
@@ -333,14 +360,18 @@ public class MainController implements Initializable{
 					clear = new SubWindow().displayComfirm("导入前是否保留当前列表？");
 					if (clear == false) musicPlayer.getBindList().clear();
 				}
+				stage.setTitle("正在导入歌曲");
 				ArrayList<Music> musics = saveList.load();
-				
 				// 除重
 				musics.removeAll(musicPlayer.getBindList());
+				int importNum = musics.size();
 				// merge
 				musicPlayer.getBindList().addAll(musics);
-			} catch(Exception e1) {
+				stage.setTitle(title);
+				new SubWindow().displayNotice("导入列表完毕，共新导入"+importNum+"首歌曲");
+			} catch (Exception e1) {
 				System.out.println(e1);
+				stage.setTitle(title);
 				new SubWindow().displayAlert("不支持该文件导入");
 				return;
 			}
@@ -353,6 +384,8 @@ public class MainController implements Initializable{
 			if (file == null) return;
 			
 			try {
+				final String title = stage.getTitle();
+				stage.setTitle("正在导出列表");
 				SaveList saveList = new SaveList(file.getAbsolutePath());
 				if (saveList.isTableMusicListExists()) {
 					if (new SubWindow().displayComfirm("当前文件已记录歌曲信息，是否保留文件内列表？")
@@ -366,9 +399,19 @@ public class MainController implements Initializable{
 					@Override
 					public void run() {
 						try {
+							int exportNum = musicPlayer.getBindList().size();
 							saveList.save(musicPlayer.getBindList());
+							Platform.runLater(new Runnable() {
+								@Override
+								public void run() {stage.setTitle(title);}
+							});
+							new SubWindow().displayNotice("导出列表完毕，列表内" + exportNum + "首歌曲全部导出");
 						} catch (SQLException e) {
-							e.printStackTrace();
+							Platform.runLater(new Runnable() {
+								@Override
+								public void run() {stage.setTitle(title);}
+							});
+							System.out.println(e);
 						}
 					}
 				});
