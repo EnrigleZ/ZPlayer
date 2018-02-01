@@ -8,7 +8,7 @@
 
 .table-view:row-selection .column-header-background .filler{
     visibility: false;
-
+	
 }
 
 .table-view{
@@ -77,10 +77,22 @@
     -fx-opacity: 0;
 }
 
+.menu-bar {
+	 -fx-background-color: transparent;
+}
+
+.menu {
+		/*-fx-prefwidth*/
+}
+
 #vboxRight {
 	-fx-background-image: url("../../../../img/bg.jpeg");
 }
 
-.menu-bar {
-	 
+#hboxTitle {
+	-fx-background-color: transparent;
 }
+#vboxMain {
+	-fx-background-color: radial-gradient(radius 100%, gray, black)
+}
+/* tabelview:linear-gradient(#444444 0%, #888888 100%) */

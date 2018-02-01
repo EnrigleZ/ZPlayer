@@ -17,19 +17,19 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="444.0" prefWidth="701.0" xmlns="http://javafx.com/javafx/8.0.151" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cc.zhouyc.view.MainController">
    <children>
-      <VBox prefHeight="444.0" prefWidth="701.0" stylesheets="@main_theme.css">
+      <VBox fx:id="vboxMain" prefHeight="444.0" prefWidth="701.0" stylesheets="@main_theme.css">
          <children>
             <HBox fx:id="hboxTitle" minHeight="40.0" prefHeight="40.0">
                <children>
-                  <Label fx:id="labelTitle" prefHeight="40.0" prefWidth="669.0" text="ZPlayer">
+                  <Label fx:id="labelTitle" prefHeight="40.0" prefWidth="669.0" text="ZPlayer" textFill="#c9c9c9">
                      <font>
                         <Font name="Old English Text MT" size="26.0" />
                      </font>
                   </Label>
-                  <Button fx:id="buttonExit" mnemonicParsing="false" text="Button" />
+                  <Button fx:id="buttonExit" mnemonicParsing="false" style="-fx-background-color: #D3D3D3;" text="X" />
                </children>
             </HBox>
-            <MenuBar>
+            <MenuBar fx:id="menuBar">
               <menus>
                 <Menu mnemonicParsing="false" text="加入">
                   <items>

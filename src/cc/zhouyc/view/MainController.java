@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 import com.sun.accessibility.internal.resources.accessibility;
+import com.sun.glass.ui.Menu;
 import com.sun.org.apache.bcel.internal.generic.NEW;
 import com.sun.xml.internal.messaging.saaj.soap.StringDataContentHandler;
 
@@ -42,6 +43,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
@@ -83,6 +85,8 @@ public class MainController implements Initializable{
 	private Label labelTitle;
 	@FXML
 	private Button buttonExit;
+	@FXML
+	private MenuBar menuBar;
 	
 	private Stage stage;
 	
@@ -107,6 +111,7 @@ public class MainController implements Initializable{
 		sliderTime.setValue(0);
 		//sliderTime.setFocusTraversable(false);
 		
+		//menuBar.setStyle(value);
 		musicPlayer.setWidgets(this);
 		
 		// 采用JavaFX事件响应编程模型，为button设置点击效果
@@ -182,7 +187,6 @@ public class MainController implements Initializable{
 		// lambda表达式写起来比下面的普通写法简洁....
 		
 		setTitleDragEffect();
-		
 		// 下一曲按钮 -> 下一曲
 		buttonNext.setOnAction(e -> {
 			try {
@@ -288,8 +292,7 @@ public class MainController implements Initializable{
 			FileInput fileInput = new FileInput(stage);
 			File file = fileInput.chooseFile();
 			if (file != null) {
-				String title = stage.getTitle();
-				stage.setTitle(title);
+				
 				Music music = new Music(file.getAbsolutePath());
 				if (music.procDetail() != -1) {
 					addMusicNode(music);
@@ -297,7 +300,6 @@ public class MainController implements Initializable{
 				else {
 					new SubWindow().displayAlert("无法添加'" + file.getAbsolutePath() + "'");
 				}
-				stage.setTitle(title);
 			}
 		});
 		
@@ -308,9 +310,6 @@ public class MainController implements Initializable{
 			ArrayList<String> dir = fileInput.chooseDir();
 			if (dir == null) return;
 			
-			String title = stage.getTitle();
-			stage.setTitle("正在处理歌曲信息...");
-
 			// 开辟新线程加入歌曲
 			// 可以不阻塞主进程
 			Thread thread = new Thread(new Runnable() {
@@ -332,10 +331,6 @@ public class MainController implements Initializable{
 						new SubWindow().displayAlert("无法添加'" + unavailable.get(0)+"'等"+unavailable.size()+"首歌曲");
 					}
 					new SubWindow().displayNotice("导入文件夹完毕，共新增"+insertNum+"首歌曲");
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() { stage.setTitle(""); }
-					});
 				}
 			});
 			thread.start();
@@ -369,7 +364,6 @@ public class MainController implements Initializable{
 			File file = fileInput.chooseFile();
 			
 			if (file == null) return;
-			String title = stage.getTitle();
 			try {
 				SaveList saveList = null;
 				saveList = new SaveList(file.getAbsolutePath());
@@ -389,11 +383,9 @@ public class MainController implements Initializable{
 				int importNum = musics.size();
 				// merge
 				musicPlayer.getBindList().addAll(musics);
-				stage.setTitle(title);
 				new SubWindow().displayNotice("导入列表完毕，共新导入"+importNum+"首歌曲");
 			} catch (Exception e1) {
 				System.out.println(e1);
-				stage.setTitle(title);
 				new SubWindow().displayAlert("不支持该文件导入");
 				return;
 			}
@@ -406,8 +398,6 @@ public class MainController implements Initializable{
 			if (file == null) return;
 			
 			try {
-				final String title = stage.getTitle();
-				stage.setTitle("正在导出列表");
 				SaveList saveList = new SaveList(file.getAbsolutePath());
 				if (saveList.isTableMusicListExists()) {
 					if (new SubWindow().displayComfirm("当前文件已记录歌曲信息，是否保留文件内列表？")
@@ -423,16 +413,8 @@ public class MainController implements Initializable{
 						try {
 							int exportNum = musicPlayer.getBindList().size();
 							saveList.save(musicPlayer.getBindList());
-							Platform.runLater(new Runnable() {
-								@Override
-								public void run() {stage.setTitle(title);}
-							});
 							new SubWindow().displayNotice("导出列表完毕，列表内" + exportNum + "首歌曲全部导出");
 						} catch (SQLException e) {
-							Platform.runLater(new Runnable() {
-								@Override
-								public void run() {stage.setTitle(title);}
-							});
 							System.out.println(e);
 						}
 					}
@@ -450,6 +432,7 @@ public class MainController implements Initializable{
 		});
 	}	// initAllButton ends
 	
+	// 设置自定义标题栏拖动移动效果
 	public void setTitleDragEffect() {
 		hboxTitle.setOnMousePressed(e->{
 			e.consume();
