@@ -144,7 +144,7 @@
 
 #buttonNext {
 	-fx-text-alignment: center;
-	-fx-background-image: url("../../../../img/next.png") ;
+	-fx-background-image: url("next.png") ;
 	-fx-background-size: 30px;
 	-fx-background-repeat: no-repeat;
 	-fx-background-position: center;
@@ -152,7 +152,7 @@
 
 #buttonPrev {
 	-fx-text-alignment: center;
-	-fx-background-image: url("../../../../img/prev.png") ;
+	-fx-background-image: url("prev.png") ;
 	-fx-background-size: 30px;
 	-fx-background-repeat: no-repeat;
 	-fx-background-position: center;
