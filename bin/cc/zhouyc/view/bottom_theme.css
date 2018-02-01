@@ -35,8 +35,6 @@
     -fx-base: #1d1d1d;
     -fx-control-inner-background: #1d1d1d;
     -fx-background-color: #1d1d1d;
-    -fx-table-cell-border-color: transparent;
-    -fx-table-header-border-color: transparent;
     -fx-padding: 5;
 }
 
@@ -56,17 +54,7 @@
     -fx-border-insets: 0 10 1 0;
 }
 
-.table-view .column-header .label {
-    -fx-font-size: 20pt;
-    -fx-font-family: "Segoe UI Light";
-    -fx-text-fill: white;
-    -fx-alignment: center-left;
-    -fx-opacity: 1;
-}
 
-.table-view:focused .table-row-cell:filled:focused:selected {
-    -fx-background-color: -fx-focus-color;
-}
 
 .split-pane:horizontal > .split-pane-divider {
     -fx-border-color: transparent #1d1d1d transparent #1d1d1d;
@@ -153,8 +141,31 @@
 	-fx-background-color: grey;
     -fx-padding: 0.0 ;
 }
+
+#buttonNext {
+	-fx-text-alignment: center;
+	-fx-background-image: url("../../../../img/next.png") ;
+	-fx-background-size: 30px;
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center;
+}
+
+#buttonPrev {
+	-fx-text-alignment: center;
+	-fx-background-image: url("../../../../img/prev.png") ;
+	-fx-background-size: 30px;
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center;
+}
+#buttonPlay {
+	-fx-font-size: 20px;
+}
+#buttonOrder {
+	-fx-font-size: 13px;
+}
 /* 
 .progressbar {
 	-fx-opacity: 1;
+	* -fx-background-image: url("../../../../img/play.png") ;
 	-fx-accent: #00ffff;
 }*/

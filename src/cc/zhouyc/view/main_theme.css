@@ -76,13 +76,19 @@
 .table-view > .virtual-flow > .scroll-bar > .decrement-button {
     -fx-opacity: 0;
 }
-
+.separator {
+	-fx-background-color: red;
+}
 .menu-bar {
 	 -fx-background-color: transparent;
+	 
 }
 
 .menu {
 		/*-fx-prefwidth*/
+}
+.scroll-bar:horizontal {
+	visibility: false;
 }
 
 #vboxRight {
@@ -95,4 +101,5 @@
 #vboxMain {
 	-fx-background-color: radial-gradient(radius 100%, gray, black)
 }
+
 /* tabelview:linear-gradient(#444444 0%, #888888 100%) */

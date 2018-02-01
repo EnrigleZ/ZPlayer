@@ -37,8 +37,8 @@ public class Main extends Application {
 			
 			Scene scene = new Scene(root);
 			primaryStage.initStyle(StageStyle.TRANSPARENT);
-			primaryStage.setWidth(704);
-			primaryStage.setHeight(471);
+			primaryStage.setWidth(676);
+			primaryStage.setHeight(506);
 			primaryStage.setResizable(false);	
 			//primaryStage.setOpacity(0.95);
 			primaryStage.setScene(scene);

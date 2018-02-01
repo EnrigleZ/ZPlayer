@@ -24,7 +24,7 @@ public class SubWindow {
 	// 显示音乐属性
 	public void displayMusicInfo(Music music){
 	    Stage window = new Stage();
-	    window.setTitle("歌曲信息 - " + music.getName());
+	    window.setTitle("歌曲信息 - " + music.getDescription());
 	    window.setMinWidth(400);
 	    window.setMinHeight(168);
 	    window.setResizable(false);

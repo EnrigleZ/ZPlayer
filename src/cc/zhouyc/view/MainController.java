@@ -36,6 +36,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
@@ -55,6 +56,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -175,8 +181,9 @@ public class MainController implements Initializable{
 	}	// initialize ends
 
 	private void checkPlaying() {
-		if (musicPlayer.getPlaying() == Status.PLAYING) buttonPlay.setText("暂停");
-		else buttonPlay.setText("继续");
+		if (musicPlayer.getPlaying() == Status.PLAYING) buttonPlay.setText("||");
+		else buttonPlay.setText(">");
+
 		tableMusic.getSelectionModel().select(musicPlayer.getCurrentMusicIndex());
 	}
 	
@@ -376,7 +383,6 @@ public class MainController implements Initializable{
 					clear = new SubWindow().displayComfirm("导入前是否保留当前列表？");
 					if (clear == false) musicPlayer.getBindList().clear();
 				}
-				stage.setTitle("正在导入歌曲");
 				ArrayList<Music> musics = saveList.load();
 				// 除重
 				musics.removeAll(musicPlayer.getBindList());
