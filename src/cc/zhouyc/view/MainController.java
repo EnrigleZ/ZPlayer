@@ -1,5 +1,6 @@
 package cc.zhouyc.view;
 
+import java.awt.Event;
 /**
  * MainController类实现MVC框架中的Controller
  * 实现界面与后端交互的沟通功能
@@ -52,6 +53,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -75,6 +77,12 @@ public class MainController implements Initializable{
 	private ProgressBar progressBarTime;
 	@FXML
 	private VBox vboxRight;
+	@FXML
+	private HBox hboxTitle;
+	@FXML
+	private Label labelTitle;
+	@FXML
+	private Button buttonExit;
 	
 	private Stage stage;
 	
@@ -88,6 +96,9 @@ public class MainController implements Initializable{
 	
 	// 当前音乐总时长
 	private int musicTime; 
+	
+	// 窗口位置，用于拖动窗口设置
+	double xOffset, yOffset;
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -169,6 +180,8 @@ public class MainController implements Initializable{
 		
 		// 重新查一下lambda表达式的写法
 		// lambda表达式写起来比下面的普通写法简洁....
+		
+		setTitleDragEffect();
 		
 		// 下一曲按钮 -> 下一曲
 		buttonNext.setOnAction(e -> {
@@ -431,8 +444,25 @@ public class MainController implements Initializable{
 				e1.printStackTrace();
 			}
 		});
+		
+		buttonExit.setOnMouseClicked(e->{
+			if (e.getButton() == MouseButton.PRIMARY) System.exit(0);
+		});
 	}	// initAllButton ends
 	
+	public void setTitleDragEffect() {
+		hboxTitle.setOnMousePressed(e->{
+			e.consume();
+			xOffset = e.getSceneX();
+			yOffset = e.getSceneY();
+		});
+		hboxTitle.setOnMouseDragged(e->{
+			e.consume();
+			stage.setX(e.getScreenX() - xOffset);
+			stage.setY(e.getScreenY() - yOffset);
+		});
+	}
+
 	// 响应属性按钮，弹窗显示
 	public void showMusicInfo(Music music) {
 		new SubWindow().displayMusicInfo(music);

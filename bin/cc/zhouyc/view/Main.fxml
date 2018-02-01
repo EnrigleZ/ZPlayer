@@ -13,11 +13,22 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="404.0" prefWidth="701.0" xmlns="http://javafx.com/javafx/8.0.151" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cc.zhouyc.view.MainController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="444.0" prefWidth="701.0" xmlns="http://javafx.com/javafx/8.0.151" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cc.zhouyc.view.MainController">
    <children>
-      <VBox prefHeight="404.0" prefWidth="701.0" stylesheets="@main_theme.css">
+      <VBox prefHeight="444.0" prefWidth="701.0" stylesheets="@main_theme.css">
          <children>
+            <HBox fx:id="hboxTitle" minHeight="40.0" prefHeight="40.0">
+               <children>
+                  <Label fx:id="labelTitle" prefHeight="40.0" prefWidth="669.0" text="ZPlayer">
+                     <font>
+                        <Font name="Old English Text MT" size="26.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="buttonExit" mnemonicParsing="false" text="Button" />
+               </children>
+            </HBox>
             <MenuBar>
               <menus>
                 <Menu mnemonicParsing="false" text="加入">
