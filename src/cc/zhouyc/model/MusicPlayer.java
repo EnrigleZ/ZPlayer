@@ -34,11 +34,8 @@ public class MusicPlayer {
 	
 	private LongProperty longCurrentMiliTime = new SimpleLongProperty(0);
 	
-	// sync的线程信号量
+	// 线程信号量
 	private Object playerLock = new Object();
-	
-	// 等待一首歌曲播放结束的信号量
-	private Object musicEndLock = new Object();
 	
 	private String strPlayOrder = "";
 	
@@ -74,6 +71,7 @@ public class MusicPlayer {
 	// 之前的线程return，开启新的线程
 	public boolean play() {
 		Music music = musicList.getCurrentMusic();
+		musicList.setNextMusicManually(null);
 		//threadMusic.
 		if (music == null) {
 			System.out.println("No Music!");
@@ -154,6 +152,11 @@ public class MusicPlayer {
 	public boolean removeMusic(Music music) {
 		return musicList.removeMusic(music);
 	}
+	
+	public boolean setNextManually(Music music) {
+		musicList.setNextMusicManually(music);
+		return musicList.getNextMusicManually() == music;
+	}
 	// 用于数据绑定
 	public ObservableList<Music> getBindList() {
 		return musicList.getBindList();
@@ -199,6 +202,10 @@ public class MusicPlayer {
 				System.out.println("new run()");
 				do {
 					Music music = musicList.getCurrentMusic();
+					if (music == null) {
+						System.out.println("no music -- run()");
+						return;
+					}
 					try {
 						FileInputStream musicInputStream = new FileInputStream(music.getFilepath());
 						player = new Player(musicInputStream);
@@ -224,10 +231,6 @@ public class MusicPlayer {
 					//System.out.println("out next:" + getCurrentMusicIndex());
 					if (getPlaying() == Status.FINISHED_AUTO) {
 						System.out.println("FINISHED_AUTO  -- Preparing for next music...");
-						// 用notifyAll()信号量的方式提醒 play()函数下一曲
-//						
-//						synchronized (musicEndLock) {
-//							musicEndLock.notifyAll();
 //						}
 					}
 					else return;	// 非正常停止（外部切歌）时return结束线程

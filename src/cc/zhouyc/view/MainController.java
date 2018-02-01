@@ -80,7 +80,9 @@ public class MainController implements Initializable{
 	
 	// 右键点击的菜单
 	private ContextMenu  contextRightMenu = new ContextMenu();
-	private MenuItem rightProperties = new MenuItem("属性"), rightRemove = new MenuItem("删除");
+	private MenuItem 	rightProperties = new MenuItem("查看详情"), 
+						rightRemove = new MenuItem("删除"), 
+						rightSetNext = new MenuItem("设为下一首");
 	
 	private MusicPlayer musicPlayer = new MusicPlayer();
 	
@@ -237,7 +239,14 @@ public class MainController implements Initializable{
 				System.out.println("Remove sucessfully.");
 			else System.out.println("Remove failed");
 		});
-		contextRightMenu.getItems().addAll(rightProperties, rightRemove);
+		rightSetNext.setOnAction(e -> {
+			Music music = tableMusic.getSelectionModel().getSelectedItem();
+			if (musicPlayer.setNextManually(music)) {
+				System.out.println("设为下一曲：" + music.getFilepath());
+			}
+			
+		});
+		contextRightMenu.getItems().addAll(rightProperties, rightRemove, rightSetNext);
 		
 		// subscribe方式 
 		// 响应式设置音乐标签绑定事件

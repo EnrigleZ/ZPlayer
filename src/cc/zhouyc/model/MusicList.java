@@ -11,6 +11,9 @@ public class MusicList {
 	
 	private Random randomGenerator = new Random(System.currentTimeMillis());
 	
+	// 是否设置了“设为下一曲”
+	private Music nextMusicManually = null;
+	
 //	private List<Integer> listHistory;
 //	private int intHistoryIndex;
 	
@@ -66,6 +69,12 @@ public class MusicList {
 		int intMusicNumber = getMusicNumber();
 		if (intMusicNumber == 0) return -1;
 		if (intMusicNumber == 1) return intCurrentMusicIndex;
+		if (nextMusicManually != null) {
+			int nextIndex = list.indexOf(nextMusicManually);
+			nextMusicManually = null;
+			//System.out.println(nextIndex);
+			if (nextIndex != -1) return intCurrentMusicIndex = nextIndex;
+		}
 		if (order == "sequence")  intCurrentMusicIndex = (intCurrentMusicIndex + 1) % intMusicNumber;
 		else if (order == "random") {
 			int tmp;
@@ -76,11 +85,6 @@ public class MusicList {
 		}
 		else if (order == "single") intCurrentMusicIndex = intCurrentMusicIndex;
 		
-		// 更新历史记录
-//		if (listHistory.isEmpty() || listHistory.get(intHistoryIndex-1) != intCurrentMusicIndex) {
-//			listHistory.add(intCurrentMusicIndex);
-//			intHistoryIndex++;
-//		}
 		return intCurrentMusicIndex;
 	}
 	
@@ -98,6 +102,14 @@ public class MusicList {
 	
 	public ObservableList<Music> getBindList() {
 		return list;
+	}
+	
+	public void setNextMusicManually(Music music) {
+		nextMusicManually = music;
+	}
+	
+	public Music getNextMusicManually() {
+		return nextMusicManually;
 	}
 	
 	public static void main(String[] args) {
