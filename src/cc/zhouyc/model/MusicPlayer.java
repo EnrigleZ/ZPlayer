@@ -4,9 +4,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Timer;
 
+import cc.zhouyc.controller.MainController;
 import cc.zhouyc.tool.MusicImage;
 import cc.zhouyc.view.Main;
-import cc.zhouyc.view.MainController;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;

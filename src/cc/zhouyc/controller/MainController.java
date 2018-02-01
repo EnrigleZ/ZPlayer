@@ -1,6 +1,5 @@
-package cc.zhouyc.view;
+package cc.zhouyc.controller;
 
-import java.awt.Event;
 /**
  * MainController类实现MVC框架中的Controller
  * 实现界面与后端交互的沟通功能
@@ -9,43 +8,30 @@ import java.awt.Event;
  */
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
-import com.sun.accessibility.internal.resources.accessibility;
-import com.sun.glass.ui.Menu;
-import com.sun.org.apache.bcel.internal.generic.NEW;
-import com.sun.xml.internal.messaging.saaj.soap.StringDataContentHandler;
 
 import cc.zhouyc.model.Music;
 import cc.zhouyc.model.MusicPlayer;
 import cc.zhouyc.model.MusicPlayer.Status;
 import cc.zhouyc.tool.FileInput;
 import cc.zhouyc.tool.SaveList;
+import cc.zhouyc.view.SubWindow;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
@@ -112,6 +98,7 @@ public class MainController implements Initializable{
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+
 
 		progressBarTime.setProgress(0);
 		sliderTime.setValue(0);
@@ -185,6 +172,7 @@ public class MainController implements Initializable{
 		else buttonPlay.setText(">");
 
 		tableMusic.getSelectionModel().select(musicPlayer.getCurrentMusicIndex());
+		stage.setTitle(tableMusic.getSelectionModel().getSelectedItem().getDescription());
 	}
 	
 	// 设置按钮的点击事件

@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="506.0" prefWidth="676.0" xmlns="http://javafx.com/javafx/8.0.151" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cc.zhouyc.view.MainController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="506.0" prefWidth="676.0" xmlns="http://javafx.com/javafx/8.0.151" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cc.zhouyc.controller.MainController">
    <children>
       <VBox fx:id="vboxMain" prefHeight="506.0" prefWidth="676.0" stylesheets="@main_theme.css">
          <children>
@@ -77,9 +77,9 @@
                   <Insets />
                </VBox.margin>
                <children>
-                  <Button fx:id="buttonPrev" mnemonicParsing="false" prefHeight="43.0" prefWidth="92.0" />
-                  <Button fx:id="buttonPlay" mnemonicParsing="false" prefHeight="49.0" prefWidth="78.0" text="&gt;" />
-                  <Button fx:id="buttonNext" mnemonicParsing="false" prefHeight="43.0" prefWidth="92.0" />
+                  <Button fx:id="buttonPrev" mnemonicParsing="false" prefHeight="41.0" prefWidth="91.0" />
+                  <Button fx:id="buttonPlay" mnemonicParsing="false" prefHeight="36.0" prefWidth="77.0" text="&gt;" />
+                  <Button fx:id="buttonNext" mnemonicParsing="false" prefHeight="41.0" prefWidth="91.0" />
                   <VBox maxHeight="54.0" minHeight="40.0" prefHeight="43.0" prefWidth="355.0">
                      <children>
                         <Label fx:id="labelDescription" prefHeight="21.0" prefWidth="275.0" text="Music - Composer" />
@@ -102,7 +102,7 @@
                         <Insets left="20.0" />
                      </padding>
                   </VBox>
-                  <Button fx:id="buttonOrder" mnemonicParsing="false" prefHeight="44.0" prefWidth="63.0" styleClass="custom-button" text="随机播放">
+                  <Button fx:id="buttonOrder" mnemonicParsing="false" prefHeight="42.0" prefWidth="61.0" styleClass="custom-button" text="随机播放">
                      <opaqueInsets>
                         <Insets />
                      </opaqueInsets>

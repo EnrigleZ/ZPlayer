@@ -1,5 +1,9 @@
 package cc.zhouyc.view;
 
+import java.io.File;
+import java.net.MalformedURLException;
+
+import cc.zhouyc.controller.MainController;
 /**
  *  Main.java 为ZPlayer的主界面显示代码。
  *  通过加载由 SceneBuilder 生成的 FXML文件进行构建。
@@ -8,16 +12,12 @@ package cc.zhouyc.view;
  * 
  */
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.scene.Scene;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 
 
 public class Main extends Application {
@@ -38,8 +38,11 @@ public class Main extends Application {
 			Scene scene = new Scene(root);
 			primaryStage.initStyle(StageStyle.TRANSPARENT);
 			primaryStage.setWidth(676);
-			primaryStage.setHeight(506);
-			primaryStage.setResizable(false);	
+			primaryStage.setHeight(507);
+			primaryStage.setResizable(false);
+			primaryStage.setTitle("ZPlayer");
+			primaryStage.getIcons().add(new Image(new File("./img/icon.png").toURI().toURL().toString()));
+			
 			//primaryStage.setOpacity(0.95);
 			primaryStage.setScene(scene);
 			primaryStage.show();
