@@ -121,6 +121,9 @@ public class SaveList {
 		return ret;
 	}
 	
+	/**
+	 * 删除数据库中存在的记录
+	 */
 	public void deleteList() {
 		if (isTableMusicListExists() == false) return;
 		try {
@@ -128,6 +131,14 @@ public class SaveList {
 		statement.executeUpdate("DELETE FROM MUSICLIST;");
 		statement.close();
 		} catch(Exception e) {}
+	}
+	
+	public void close() {
+		try {
+			connection.close();
+		} catch (SQLException e) {
+			System.out.println(e);
+		}
 	}
 	
 	public static void main(String[] args) {

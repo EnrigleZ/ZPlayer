@@ -174,7 +174,6 @@ public class MainController implements Initializable{
 		
 		tableMusic.getSelectionModel().select(musicPlayer.getCurrentMusicIndex());
 		if (musicPlayer.getCurrentMusicIndex() == -1 ) return;
-		stage.setTitle(tableMusic.getSelectionModel().getSelectedItem().getDescription());
 	}
 	
 	// 设置按钮的点击事件
@@ -357,7 +356,7 @@ public class MainController implements Initializable{
 		
 		// 从 .DB or .LIST 文件中导入列表
 		buttonImport.setOnAction(e->{
-			FileInput fileInput = new FileInput(stage, new String[] {"db", "list"}, "./data", 1) ;
+			FileInput fileInput = new FileInput(stage, new String[] {"db", "list"}, "./data", "Import list") ;
 			File file = fileInput.chooseFile();
 			
 			if (file == null) return;
@@ -366,6 +365,7 @@ public class MainController implements Initializable{
 				saveList = new SaveList(file.getAbsolutePath());
 				if (saveList.isTableMusicListExists() == false) {
 					System.out.println("TABLE MUSICLIST 不存在");
+					saveList.close();
 					return;
 				}
 				boolean clear = true;
@@ -374,6 +374,7 @@ public class MainController implements Initializable{
 					if (clear == false) musicPlayer.getBindList().clear();
 				}
 				ArrayList<Music> musics = saveList.load();
+				saveList.close();
 				// 除重
 				musics.removeAll(musicPlayer.getBindList());
 				int importNum = musics.size();
@@ -389,7 +390,7 @@ public class MainController implements Initializable{
 		
 		// 将列表导出到.DB or .LIST文件
 		buttonExport.setOnAction(e->{
-			FileInput fileInput = new FileInput(stage, new String[] {"db", "list"}, "./data", -1) ;
+			FileInput fileInput = new FileInput(stage, new String[] {"db", "list"}, "./data", "Export list") ;
 			File file = fileInput.chooseFile();
 			if (file == null) return;
 			
@@ -408,9 +409,12 @@ public class MainController implements Initializable{
 					public void run() {
 						try {
 							int exportNum = musicPlayer.getBindList().size();
+							new SubWindow().displayNotice("导出线程已在后台自动开始，请稍后");
 							saveList.save(musicPlayer.getBindList());
+							saveList.close();
 							new SubWindow().displayNotice("导出列表完毕，列表内" + exportNum + "首歌曲全部导出");
 						} catch (SQLException e) {
+							saveList.close();
 							System.out.println(e);
 						}
 					}
@@ -477,5 +481,9 @@ public class MainController implements Initializable{
 
 	public void setMusicTime(int musicLength) {
 		this.musicTime = musicLength;
+	}
+	
+	public void setTitle(String title) {
+		this.stage.setTitle(title);
 	}
 }

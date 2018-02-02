@@ -21,12 +21,12 @@
          <children>
             <HBox fx:id="hboxTitle" minHeight="40.0" prefHeight="40.0">
                <children>
-                  <Label fx:id="labelTitle" prefHeight="40.0" prefWidth="669.0" text="ZPlayer" textFill="#c9c9c9">
+                  <Label fx:id="labelTitle" prefHeight="40.0" prefWidth="641.0" text="ZPlayer" textFill="#c9c9c9">
                      <font>
                         <Font name="Old English Text MT" size="26.0" />
                      </font>
                   </Label>
-                  <Button fx:id="buttonExit" mnemonicParsing="false" style="-fx-background-color: #D3D3D3;" text="X" />
+                  <Button fx:id="buttonExit" mnemonicParsing="false" prefHeight="23.0" prefWidth="39.0" style="-fx-background-color: gray;" text="X" />
                </children>
             </HBox>
             <MenuBar fx:id="menuBar">
@@ -58,7 +58,7 @@
                         <TableView fx:id="tableMusic" fixedCellSize="30.0" maxWidth="299.0" minWidth="245.0" prefHeight="400.0" prefWidth="253.0" style="-fx-background-color: linear-gradient(#444444 0%, #888888 100%);">
                           <columns>
                             <TableColumn fx:id="columnName" editable="false" maxWidth="200.0" minWidth="173.0" prefWidth="177.0" resizable="false" sortable="false" text="播放列表" />
-                              <TableColumn fx:id="columnLength" editable="false" minWidth="0.0" prefWidth="79.0" resizable="false" text="时长" />
+                              <TableColumn fx:id="columnLength" editable="false" minWidth="0.0" prefWidth="79.0" resizable="false" sortable="false" text="时长" />
                           </columns>
                            <columnResizePolicy>
                               <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

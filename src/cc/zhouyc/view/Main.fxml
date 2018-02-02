@@ -21,12 +21,12 @@
          <children>
             <HBox fx:id="hboxTitle" minHeight="40.0" prefHeight="40.0">
                <children>
-                  <Label fx:id="labelTitle" prefHeight="40.0" prefWidth="669.0" text="ZPlayer" textFill="#c9c9c9">
+                  <Label fx:id="labelTitle" prefHeight="40.0" prefWidth="641.0" text="ZPlayer" textFill="#c9c9c9">
                      <font>
                         <Font name="Old English Text MT" size="26.0" />
                      </font>
                   </Label>
-                  <Button fx:id="buttonExit" mnemonicParsing="false" style="-fx-background-color: #D3D3D3;" text="X" />
+                  <Button fx:id="buttonExit" mnemonicParsing="false" prefHeight="23.0" prefWidth="39.0" style="-fx-background-color: gray;" text="X" />
                </children>
             </HBox>
             <MenuBar fx:id="menuBar">
