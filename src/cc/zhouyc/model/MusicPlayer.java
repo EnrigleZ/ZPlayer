@@ -41,6 +41,8 @@ public class MusicPlayer {
 	
 	private Status isPlaying; // 应该初始化为 Status.NOT_STARTED;
 	
+	private Music musicCurrentPlay;
+	
 	private Runnable runnableMusic;
 	
 	private Thread threadMusic;
@@ -115,6 +117,7 @@ public class MusicPlayer {
 	
 	// 下一曲按钮
 	public void playNext() {
+		//musicList.set
 		musicList.nextMusicIndex(getPlayOrder());
 		play();
 	}
@@ -170,6 +173,7 @@ public class MusicPlayer {
 	// 开启线程，播放音乐
 	private void playMusic() {
 
+		// sync段为准备部分
 		// 判断是否有音乐还没结束，否则会出现严重混音错误
 		synchronized (playerLock) {
 			System.out.println("Before: getPl() == " + getPlaying());
@@ -337,6 +341,7 @@ public class MusicPlayer {
 		    @Override
 		    public void run() {
 		    	Music music = musicList.getCurrentMusic();
+		    	controller.setTitle(music.getDescription());
 		    	controller.setMusicTime(music.getMusicLength());
 		    	controller.getLabelDescription().setText(music.getDescription());
 		    	controller.getTableMusic().getSelectionModel().select(getCurrentMusicIndex());
@@ -356,7 +361,7 @@ public class MusicPlayer {
 		    	System.out.println("Music information widgets updated.");
 		    }
 		});
-		
+		//musicCurrentPlay = musicList.getCurrentMusic();
 	}
 	
 	public LongProperty getCurrentMiliTime() {

@@ -25,7 +25,7 @@ public class FileInput {
 	 * STATIC
 	 */
 	// 默认打开文件选择器的路径，每次选择后置为本次打开的文件夹
-	private static String lastDir = null;
+	private static String lastDir = ".";
 	
 	// 可以在这里手动设置默认音乐格式
 	private static ArrayList<String> musicFormat = 
@@ -39,7 +39,7 @@ public class FileInput {
 	private String[] chosenFormat = null;
 	private String chosenDir = null;
 	// 用于判断是否是导出列表
-	private int isImport = 0;	// 1, -1
+	private String title = "";	// 1, -1
 	
 	// constructor
 	public FileInput(Stage stage) {
@@ -53,7 +53,7 @@ public class FileInput {
 		this.stage = stage; 
 		//this.stage = new Stage();
 		
-		this.isImport = 0;
+		
 		
 		try {
 			new File(lastDir).exists();
@@ -63,9 +63,9 @@ public class FileInput {
 			System.out.println("Default directory is invalid");
 		}
 	}
-	public FileInput(Stage stage, String format[], String dir, int isImport) {
+	public FileInput(Stage stage, String format[], String dir, String title) {
 		this.stage = stage;
-		this.isImport = isImport;
+		this.title = title;
 		chosenFormat = format;
 		chosenDir = dir;
 		try {
@@ -81,10 +81,14 @@ public class FileInput {
 	 */
 	public File chooseFile() {
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("可根据扩展名筛选");
+		if (title.equals("") == false) fileChooser.setTitle(title);
+		else fileChooser.setTitle("Select music file");
+		fileChooser.setTitle(fileChooser.getTitle() + "    可根据扩展名筛选");
 		if (chosenDir != null && new File(chosenDir).exists() == false) 
 			new File(chosenDir).mkdir();
-		if (isImport == 0) fileChooser.setInitialDirectory(new File(lastDir));
+		if (title.equals("Import list") == false && chosenDir == null) {
+				fileChooser.setInitialDirectory(new File(lastDir));
+		}
 		else fileChooser.setInitialDirectory(new File(chosenDir));
 		
 		// 设置扩展名 (全部 + musicFormat)
@@ -106,10 +110,10 @@ public class FileInput {
 			}
 		}
 		File file;
-		if (isImport == -1) file = fileChooser.showSaveDialog(stage);	//导出 
+		if (title == "Export list") file = fileChooser.showSaveDialog(stage);	//导出 
 		else file = fileChooser.showOpenDialog(stage);
 		if (file != null) {
-			if (this.isImport == 0) lastDir = file.getParent();
+			if (title == "") lastDir = file.getParent();
 		}
 		else System.out.println("No file selected.");
 		
