@@ -63,7 +63,7 @@ public class MusicList {
 	}
 	
 	// gextMusicIndex() 在返回的同时也修改 intCurrentMusicIndex
-	public int nextMusicIndex(String order) {
+	public int nextMusicIndex(String order, Music current) {
 		// 顺序播放 随机播放 单曲循环
 		
 		int intMusicNumber = getMusicNumber();
@@ -75,6 +75,8 @@ public class MusicList {
 			//System.out.println(nextIndex);
 			if (nextIndex != -1) return intCurrentMusicIndex = nextIndex;
 		}
+		
+		if (list.indexOf(current) != -1) intCurrentMusicIndex = list.indexOf(current);
 		if (order == "sequence")  intCurrentMusicIndex = (intCurrentMusicIndex + 1) % intMusicNumber;
 		else if (order == "random") {
 			int tmp;
@@ -119,7 +121,7 @@ public class MusicList {
 			ml[i] = new Music(""+i);
 		}
 		ml[0] = new Music("1");
-		
+		System.out.println(musicList.list.indexOf(null));
 //		for (int i = 0; i < ml.length; i++) {
 //			musicList.addMusic(ml[i]);
 //		}
@@ -136,7 +138,7 @@ public class MusicList {
 		
 		for (int i = 0; i < musicList.getMusicNumber(); i++) {
 			System.out.println(musicList.getCurrentMusic().getFilepath());
-			musicList.nextMusicIndex("sequence");
+			//musicList.nextMusicIndex("sequence");
 		}
 		
 	}	

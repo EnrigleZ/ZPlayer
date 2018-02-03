@@ -52,7 +52,7 @@
 }
 
 .table-row-cell:selected {
-    -fx-background-color: #005797;
+    -fx-background-color: #000033;
     -fx-background-insets: 0;
     -fx-background-radius: 1;
 }
@@ -101,5 +101,8 @@
 #vboxMain {
 	-fx-background-color: radial-gradient(radius 100%, gray, black)
 }
-
+#labelTitle {
+	-fx-font-family: "Old English Text MT", Mistral, Vivaldi;
+	-fx-font-size: 26px;
+}
 /* tabelview:linear-gradient(#444444 0%, #888888 100%) */

@@ -4,9 +4,6 @@
  * Author: Pedro Duque Vieira
  * http://pixelduke.wordpress.com/2012/10/23/jmetro-windows-8-controls-on-java/
  */
-.background {
-    -fx-background-color: radial-gradient(radius 100%, gray, black)
-}
 
 .body {
 	-fx-font-family: "Consolas";

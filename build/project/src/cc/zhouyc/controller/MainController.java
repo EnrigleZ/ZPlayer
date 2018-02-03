@@ -76,7 +76,7 @@ public class MainController implements Initializable{
 	@FXML
 	private Label labelTitle;
 	@FXML
-	private Button buttonExit;
+	private Button buttonExit, buttonMin;
 	@FXML
 	private MenuBar menuBar;
 	
@@ -429,6 +429,9 @@ public class MainController implements Initializable{
 		
 		buttonExit.setOnMouseClicked(e->{
 			if (e.getButton() == MouseButton.PRIMARY) System.exit(0);
+		});
+		buttonMin.setOnMouseClicked(e->{
+			if (e.getButton() == MouseButton.PRIMARY) stage.setIconified(true);
 		});
 	}	// initAllButton ends
 	

@@ -43,7 +43,7 @@ public class MusicImage {
 //	        System.out.println("set Opacity 0.5");
 	        BackgroundImage backgroundImage = new BackgroundImage(image, 
 	        		BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, 
-	        		BackgroundPosition.CENTER, new BackgroundSize(width, height, false, false, true, true)
+	        		BackgroundPosition.CENTER, new BackgroundSize(1, 1, true, true, true, true)
 	        		);
 	        return new Background(backgroundImage);
 	}

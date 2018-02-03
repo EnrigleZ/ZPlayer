@@ -118,7 +118,7 @@ public class MusicPlayer {
 	// 下一曲按钮
 	public void playNext() {
 		//musicList.set
-		musicList.nextMusicIndex(getPlayOrder());
+		musicList.nextMusicIndex(getPlayOrder(), musicCurrentPlay);
 		play();
 	}
 	
@@ -231,6 +231,7 @@ public class MusicPlayer {
 						setPlaying(Status.PLAYING);
 					}
 					
+					musicCurrentPlay = music;
 					playInternal();
 					//System.out.println("out next:" + getCurrentMusicIndex());
 					if (getPlaying() == Status.FINISHED_AUTO) {
@@ -282,7 +283,7 @@ public class MusicPlayer {
 					}
     				//playNext();//不能调用这个playNext()否则是递归 = = 
     				System.out.println(getPlayOrder());
-    				musicList.nextMusicIndex(getPlayOrder());
+    				musicList.nextMusicIndex(getPlayOrder(), musicCurrentPlay);
     			//	System.out.println(getCurrentMusicIndex());
     				return;
     			}
